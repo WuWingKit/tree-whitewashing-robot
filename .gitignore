@@ -1,0 +1,27 @@
+# 原始订单、厂商大包和本地分析不得公开
+.hardware_review/
+.ppt_build/
+硬件资料/
+output/
+assets/
+report_parts/
+*.xml
+*.pdf
+*.zip
+*.rar
+*.7z
+*.exe
+*.bin
+*.hex
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+__pycache__/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+build/
+dist/
