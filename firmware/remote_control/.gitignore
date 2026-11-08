@@ -1,0 +1,11 @@
+stm32/.vendor/
+stm32/build/
+stm32/RemoteControl.uvprojx
+stm32/*.uvoptx
+stm32/*.uvguix.*
+esp32/RemoteControl/src/rc_protocol.c
+esp32/RemoteControl/src/rc_protocol.h
+esp32/RemoteControl/web_ui.h
+esp32/build/
+delivery/
+__pycache__/

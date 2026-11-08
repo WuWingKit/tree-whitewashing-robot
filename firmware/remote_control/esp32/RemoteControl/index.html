@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>树木涂白机器人 · 底盘测试</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:720px;margin:30px auto;padding:18px;background:#f3f6fa;color:#17283b}button{padding:18px;font-size:18px;border:1px solid #a4b5c7;border-radius:9px;background:white;touch-action:none;user-select:none}button:disabled{opacity:.45}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}#stop{background:#b52236;color:white}#arm{background:#176455;color:white}pre{background:#fff;padding:14px;white-space:pre-wrap}input{width:65%}.held{background:#bdd8ff}small{display:block;line-height:1.7}
+</style>
+<h1>底盘遥控测试</h1>
+<p>先架空车轮核对方向。点击“启用遥控”，按住按钮或键盘运动，松开即停止输出。</p>
+<button id="arm">启用遥控</button> <button id="stop">停止并锁定（空格）</button>
+<p>占空比：<strong id="percent">20</strong>% <input id="speed" type="range" min="10" max="30" value="20" step="1"></p>
+<div class="grid">
+<button data-key="q">左弧线 Q</button><button data-key="w">前进 W / ↑</button><button data-key="e">右弧线 E</button>
+<button data-key="a">原地左转 A / ←</button><button data-key="s">后退 S / ↓</button><button data-key="d">原地右转 D / →</button>
+</div>
+<pre id="status">正在连接STM32状态…</pre>
+<small>仅用于受控场地的低速开环测试；显示的是PWM指令，不是实测车速或编码器反馈。断联后需要重新启用。按键不响应时先点击页面空白处；切换窗口会锁定遥控。</small>
+<script>
+'use strict';
+let token=0,seq=0,held='',busy=false,arming=false,generation=0,ready=false;
+const byId=id=>document.getElementById(id);
+const buttons=[...document.querySelectorAll('[data-key]')];
+function clearHeld(){held='';buttons.forEach(b=>b.classList.remove('held'));}
+function lock(send=true){generation++;token=0;arming=false;ready=false;clearHeld();if(send)navigator.sendBeacon('/api/stop','');}
+async function api(path,params){
+ const abort=new AbortController(),timer=setTimeout(()=>abort.abort(),200);
+ try{const res=await fetch(path,{method:'POST',body:new URLSearchParams(params),signal:abort.signal});
+ const data=await res.json();if(!res.ok)throw Error(data.error||res.status);return data;}finally{clearTimeout(timer);}
+}
+function drivePair(){
+ const p=Number(byId('speed').value)*10;
+ return ({w:[p,p],s:[-p,-p],a:[-p,p],d:[p,-p],q:[0,p],e:[p,0]})[held]||[0,0];
+}
+async function tick(){
+ if(!token||busy)return;
+ busy=true;const session=token,[left,right]=drivePair();
+ try{await api('/api/drive',{token:session,seq:++seq,left,right});}
+ catch(e){if(token===session){lock();byId('status').textContent='遥控已锁定：'+e.message;}}
+ finally{busy=false;}
+}
+byId('arm').onclick=async()=>{
+ if(token||arming)return;clearHeld();arming=true;const attempt=++generation;
+ try{const data=await api('/api/arm',{});if(attempt!==generation){navigator.sendBeacon('/api/stop','');return;}token=data.token;seq=0;await tick();}
+ catch(e){if(attempt===generation){lock();byId('status').textContent='无法启用：'+e.message;}}
+ finally{if(attempt===generation)arming=false;}
+};
+byId('stop').onclick=()=>lock();
+byId('speed').oninput=()=>byId('percent').textContent=byId('speed').value;
+function press(key){if(!token||!ready)return;clearHeld();held=key;buttons.filter(b=>b.dataset.key===key).forEach(b=>b.classList.add('held'));tick();}
+function release(){clearHeld();tick();}
+buttons.forEach(b=>{
+ b.onpointerdown=e=>{e.preventDefault();b.setPointerCapture(e.pointerId);press(b.dataset.key);};
+ b.onpointerup=release;b.onpointercancel=release;b.onlostpointercapture=release;
+ b.oncontextmenu=e=>e.preventDefault();
+});
+const aliases={ArrowUp:'w',ArrowDown:'s',ArrowLeft:'a',ArrowRight:'d'};
+window.addEventListener('keydown',e=>{
+ if(e.code==='Space'){e.preventDefault();lock();return;}
+ if(e.target.matches('input'))return;
+ const key=aliases[e.key]||e.key.toLowerCase();
+ if('wasdqe'.includes(key)&&key.length===1){e.preventDefault();if(!e.repeat)press(key);}
+});
+window.addEventListener('keyup',e=>{const key=aliases[e.key]||e.key.toLowerCase();if(key===held){e.preventDefault();release();}});
+window.addEventListener('blur',()=>lock());
+document.addEventListener('visibilitychange',()=>{if(document.hidden)lock();});
+window.addEventListener('pagehide',()=>lock());
+setInterval(tick,80);
+let polling=false;
+async function poll(){
+ if(polling)return;polling=true;const snapshot=generation;
+ const abort=new AbortController(),timer=setTimeout(()=>abort.abort(),250);
+ try{const r=await fetch('/api/status',{cache:'no-store',signal:abort.signal});if(!r.ok)throw Error('status');const s=await r.json();
+ if(snapshot!==generation)return;
+ if(token&&(!s.online||s.estop||!s.owner))lock();
+ ready=Boolean(token&&s.armed&&s.online&&!s.estop);
+ buttons.forEach(b=>b.disabled=!ready);
+ byId('status').textContent=`STM32：${s.online?'在线':'离线'} / ${s.estop?'停车按钮按下':s.armed?'已启用':'已锁定'}\n左侧输出：${s.left/10}%　右侧输出：${s.right/10}%\n${token?'本页持有遥控会话':'点击启用后按住操作'}（输出非实测速度）`;
+ }catch(e){lock();byId('status').textContent='网络或状态连接断开，已请求停车';}
+ finally{clearTimeout(timer);polling=false;}
+}
+buttons.forEach(b=>b.disabled=true);setInterval(poll,300);poll();
+</script></html>
