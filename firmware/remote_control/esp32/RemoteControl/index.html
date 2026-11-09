@@ -5,6 +5,7 @@
 body{font-family:system-ui,sans-serif;max-width:720px;margin:30px auto;padding:18px;background:#f3f6fa;color:#17283b}button{padding:18px;font-size:18px;border:1px solid #a4b5c7;border-radius:9px;background:white;touch-action:none;user-select:none}button:disabled{opacity:.45}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}#stop{background:#b52236;color:white}#arm{background:#176455;color:white}pre{background:#fff;padding:14px;white-space:pre-wrap}input{width:65%}.held{background:#bdd8ff}small{display:block;line-height:1.7}
 </style>
 <h1>底盘遥控测试</h1>
+<p><a href="/update" target="_blank" rel="noopener">固件升级（OTA）</a> · 当前版本 <span id="version">正在读取</span></p>
 <p>先架空车轮核对方向。点击“启用遥控”，按住按钮或键盘运动，松开即停止输出。</p>
 <button id="arm">启用遥控</button> <button id="stop">停止并锁定（空格）</button>
 <p>占空比：<strong id="percent">20</strong>% <input id="speed" type="range" min="10" max="30" value="20" step="1"></p>
@@ -71,7 +72,10 @@ async function poll(){
  try{const r=await fetch('/api/status',{cache:'no-store',signal:abort.signal});if(!r.ok)throw Error('status');const s=await r.json();
  if(snapshot!==generation)return;
  if(token&&(!s.online||s.estop||!s.owner))lock();
- ready=Boolean(token&&s.armed&&s.online&&!s.estop);
+ if(s.maintenance&&token)lock();
+ ready=Boolean(token&&s.armed&&s.online&&!s.estop&&!s.maintenance);
+ byId('version').textContent=s.version||'早期测试版';
+ byId('arm').disabled=Boolean(s.maintenance);
  buttons.forEach(b=>b.disabled=!ready);
  byId('status').textContent=`STM32：${s.online?'在线':'离线'} / ${s.estop?'停车按钮按下':s.armed?'已启用':'已锁定'}\n左侧输出：${s.left/10}%　右侧输出：${s.right/10}%\n${token?'本页持有遥控会话':'点击启用后按住操作'}（输出非实测速度）`;
  }catch(e){lock();byId('status').textContent='网络或状态连接断开，已请求停车';}

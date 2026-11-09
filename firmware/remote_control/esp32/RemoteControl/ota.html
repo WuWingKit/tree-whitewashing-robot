@@ -1,0 +1,51 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>机器人固件升级</title>
+<style>body{font:17px system-ui,sans-serif;max-width:700px;margin:30px auto;padding:20px;background:#f3f6fa;color:#17283b}label{display:block;margin:24px 0}button{font-size:17px;padding:12px;margin-right:10px}pre{background:white;padding:16px;white-space:pre-wrap}progress{width:100%}</style>
+<h1>ESP32固件升级</h1>
+<p>升级期间车辆会停车并锁定遥控。完成并重启后，需要重新启用遥控。</p>
+<label>应用固件（.bin） <input id="firmware" type="file" accept=".bin"></label>
+<label>配套校验清单（.json） <input id="manifest" type="file" accept=".json"></label>
+<label><input id="standalone" type="checkbox"> STM32未连接，进行ESP32独立台架升级</label>
+<button id="upload">停车并升级</button><button id="cancel">取消维护锁定</button>
+<progress id="progress" max="100" value="0"></progress><pre id="message">请选择应用固件及配套校验清单。USB合并镜像不能用于此处。</pre>
+<script>
+'use strict';
+const el=id=>document.getElementById(id);let session='';
+const message=text=>el('message').textContent=text;
+async function request(url,options={}){
+ const r=await fetch(url,{cache:'no-store',...options});const j=await r.json();
+ if(!r.ok)throw Error(j.error||`HTTP ${r.status}`);return j;
+}
+el('cancel').onclick=async()=>{
+ try{if(!session)throw Error('本页面没有维护会话；可重新开始一次升级，再取消。');
+ await request('/api/ota/cancel',{method:'POST',headers:{'X-OTA-Token':session}});session='';message('维护已取消，车辆保持停车，请回到控制页重新启用。');
+ }catch(e){message(e.message);}
+};
+el('upload').onclick=async()=>{
+ let file=el('firmware').files[0],manifest=el('manifest').files[0];
+ if(!file||!manifest){message('请选择两个配套文件。');return;}
+ el('upload').disabled=true;
+ try{
+  const m=JSON.parse(await manifest.text());
+  if(m.target!=='tree-robot-esp32s3'||m.size!==file.size||!/^[a-f0-9]{64}$/i.test(m.sha256))throw Error('校验清单与所选文件不匹配。');
+  const data=await request('/api/ota/prepare',{method:'POST',body:new URLSearchParams({target:m.target,size:m.size,sha256:m.sha256,standalone:el('standalone').checked?'1':'0'})});
+  session=data.token;message('正在确认停车…');
+  let ready=false;
+  for(let i=0;i<20;i++){
+   await new Promise(r=>setTimeout(r,200));const s=await request('/api/ota/status');
+   if(s.error)throw Error(s.error);if(s.ready){ready=true;break;}
+  }
+  if(!ready)throw Error('未能确认停车，请检查两板通信或选择独立台架模式。');
+  message(`正在上传 ${file.name}，请保持供电和Wi-Fi连接。`);
+  await new Promise((resolve,reject)=>{
+   const xhr=new XMLHttpRequest();xhr.open('POST','/api/ota/upload');xhr.setRequestHeader('X-OTA-Token',session);
+   xhr.timeout=90000;xhr.upload.onprogress=e=>{if(e.lengthComputable)el('progress').value=e.loaded*100/e.total;};
+   xhr.onload=()=>{try{const j=JSON.parse(xhr.responseText);if(xhr.status!==200||!j.verified)throw Error(j.error||'升级失败');resolve();}catch(e){reject(e);}};
+   xhr.onerror=()=>reject(Error('连接中断，请重新连接热点后检查版本。'));xhr.ontimeout=()=>reject(Error('上传超时'));
+   const form=new FormData();form.append('firmware',file);xhr.send(form);
+  });
+  session='';message('校验成功，设备正在重启。重新连接TreeRobotTest热点，打开控制页查看版本；车辆不会自动恢复运动。');
+ }catch(e){message('升级未完成：'+e.message+'。车辆保持锁定，可取消维护后重试。');}
+ finally{el('upload').disabled=false;}
+};
+</script></html>

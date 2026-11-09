@@ -5,6 +5,9 @@ Python 3, standard library only. Does not modify any original hardware material.
 from pathlib import Path
 import argparse
 import shutil
+import json
+import secrets
+import re
 import zipfile
 import xml.etree.ElementTree as ET
 
@@ -77,12 +80,21 @@ def prepare(materials):
 def prepare_sketch():
     sketch = ROOT/"esp32/RemoteControl"
     (sketch/"src").mkdir(exist_ok=True)
-    for name in ["rc_protocol.c", "rc_protocol.h"]:
+    for name in ["rc_protocol.c", "rc_protocol.h", "rc_ota_image.c", "rc_ota_image.h"]:
         shutil.copy2(ROOT/"common"/name, sketch/"src"/name)
     html = (sketch/"index.html").read_text(encoding="utf-8")
     assert ')RCWEB"' not in html
     (sketch/"web_ui.h").write_text(
         '#pragma once\n#include <pgmspace.h>\nstatic const char WEB_UI[] PROGMEM=R"RCWEB(\n'+html+'\n)RCWEB";\n', encoding="utf-8")
+    html=(sketch/"ota.html").read_text(encoding="utf-8")
+    assert ')RCOTA"' not in html
+    (sketch/"ota_ui.h").write_text('#pragma once\n#include <pgmspace.h>\nstatic const char OTA_UI[] PROGMEM=R"RCOTA(\n'+html+'\n)RCOTA";\n',encoding="utf-8")
+    credentials=ROOT/"esp32/ota_access.json"
+    if not credentials.exists():
+        credentials.write_text(json.dumps({"username":"admin","password":secrets.token_urlsafe(24)},indent=2),encoding="utf-8")
+    access=json.loads(credentials.read_text(encoding="utf-8"))
+    assert access["username"]=="admin" and re.fullmatch(r"[A-Za-z0-9_-]{16,80}",access["password"])
+    (sketch/"ota_config.h").write_text('#pragma once\n#define OTA_USERNAME "admin"\n#define OTA_PASSWORD "'+access["password"]+'"\n',encoding="utf-8")
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser()

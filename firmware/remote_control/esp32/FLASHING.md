@@ -1,5 +1,7 @@
 # ESP32-S3 N16R8烧录文件
 
+2026-11-09起，当前固件已支持[网页OTA](../OTA.md)。首次安装/USB恢复仍按本文操作；后续无线升级使用应用BIN及校验清单，不使用合并镜像。
+
 本地交付ZIP内`esp32/build/RemoteControl_ESP32S3_N16R8_merged.bin`是合并镜像，包含S3 bootloader、分区表、初始化OTA数据与应用。目标为本次N16R8开发板，未在真实板上烧录验证。
 
 ## 直接使用现成镜像

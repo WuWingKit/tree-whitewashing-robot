@@ -6,10 +6,10 @@ import subprocess
 from prepare import ROOT
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument("--cc", default="msvc");a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument("--cc", default="msvc");p.add_argument("--suite",choices=["core","ota"],default="core");a=p.parse_args()
     out=ROOT/"stm32/build/tests";out.mkdir(parents=True,exist_ok=True)
-    src=[ROOT/"tests/test_core.c",ROOT/"common/rc_protocol.c",ROOT/"common/rc_control.c"]
-    exe=out/("test_core.exe" if os.name=="nt" else "test_core")
+    src=[ROOT/("tests/test_core.c" if a.suite=="core" else "tests/test_ota_image.c"),ROOT/"common/rc_protocol.c",ROOT/"common/rc_control.c",ROOT/"common/rc_ota_image.c"]
+    exe=out/("test_"+a.suite+(".exe" if os.name=="nt" else ""))
     env=os.environ.copy()
     if a.cc=="msvc":
         vswhere=Path(os.environ.get("ProgramFiles(x86)","C:/Program Files (x86)"))/"Microsoft Visual Studio/Installer/vswhere.exe"

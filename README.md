@@ -8,6 +8,10 @@
 
 已提供[电脑浏览器→S3→F407→TB6612测试程序](firmware/remote_control/README.md)和[完整接线表](firmware/remote_control/WIRING.md)，含前进、后退、左右转向及超时停车。当前是开环台架测试版，尚未上车验证；不包含喷涂与自动避障。
 
+## 网页OTA与实机调试（2026-11-09）
+
+ESP32现已支持[密码保护的网页OTA](firmware/remote_control/OTA.md)，并完成[真实Wi-Fi升级、错误包拒绝、上传中断和两板UART测试](firmware/remote_control/HARDWARE_TEST_20261109.md)。STM32 OTA仍待实现，速度上限保持初版设置。
+
 ## 当前方案
 
 - 双层四驱差速底盘，普通轮；下层放电池和控制板，上层布置搅拌容器及待选泵。

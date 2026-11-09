@@ -6,6 +6,12 @@ stm32/*.uvguix.*
 esp32/RemoteControl/src/rc_protocol.c
 esp32/RemoteControl/src/rc_protocol.h
 esp32/RemoteControl/web_ui.h
+esp32/RemoteControl/ota_ui.h
+esp32/RemoteControl/ota_config.h
+esp32/ota_access.json
+esp32/RemoteControl/src/rc_ota_image.c
+esp32/RemoteControl/src/rc_ota_image.h
 esp32/build/
 delivery/
 __pycache__/
+stm32/DebugConfig/

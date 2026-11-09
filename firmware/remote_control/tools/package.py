@@ -3,18 +3,23 @@ from pathlib import Path
 import hashlib
 import json
 import zipfile
+import argparse
 from prepare import ROOT
 
 def main():
     out=ROOT/"delivery";out.mkdir(exist_ok=True)
-    archive=out/"tree_robot_remote_control_20261108.zip"
+    parser=argparse.ArgumentParser();parser.add_argument('--tag',default='20261109_ota');args=parser.parse_args()
+    if not all(c.isalnum() or c in '_-' for c in args.tag):raise SystemExit('Invalid package tag')
+    archive=out/("tree_robot_remote_control_"+args.tag+".zip")
     files=[]
     for p in ROOT.rglob("*"):
         if not p.is_file():continue
+        if p.name in {"ota_config.h","ota_access.json"}:continue
         rel=p.relative_to(ROOT)
-        if any(part in {"delivery","__pycache__"} for part in rel.parts):continue
+        if any(part in {"delivery","__pycache__","DebugConfig"} for part in rel.parts):continue
+        if '.uvguix.' in p.name:continue
         if p.suffix in {".o",".obj",".axf",".map",".sct",".uvoptx"}:continue
-        if "build" in rel.parts and p.suffix not in {".hex",".bin"}:continue
+        if "build" in rel.parts and p.suffix not in {".hex",".bin"} and p.name!="RemoteControl.ota.json":continue
         if "tests" in rel.parts and "build" in rel.parts:continue
         if p.name.startswith(".") and p.name!=".gitignore":continue
         files.append((p,rel.as_posix()))
