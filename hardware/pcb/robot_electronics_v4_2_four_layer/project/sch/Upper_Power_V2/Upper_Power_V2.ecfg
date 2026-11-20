@@ -1,0 +1,4 @@
+{"type":"DOCHEAD"}||{"docType":"SCH","client":"dfb403c72c612e0e","uuid":"6ed3d5c8f9aa9037","updateTime":1794645047747,"version":"1794645047747","editVersion":"4.1.71","user":{"uuid":"bc6a46937bda48cebfbbfe12bd76daa7","nickname":"","username":""}}|
+{"type":"META","ticket":7207,"id":"META"}||{"title":"Upper_Power_V2","source":"","board":"338dc9ee204014b9","zIndex":null}|
+{"type":"RULE","ticket":7542,"id":"[\"RULE\",\"TRACK\",\"copperThickness1oz\"]"}||{"ruleState":"DEFAULT","ruleContext":{"unit":"mm","track":{"isOpen":true,"content":[{"layerId":1,"stroDef":0.254,"stroMax":2.54,"stroMin":0.127}]}}}|
+{"type":"RULE","ticket":7543,"id":"[\"RULE\",\"TRACK\",\"copperThickness2oz\"]"}||{"ruleState":"NORMAL","ruleContext":{"unit":"mm","track":{"isOpen":true,"content":[{"layerId":1,"stroDef":0.254,"stroMax":2.54,"stroMin":0.203}]}}}|

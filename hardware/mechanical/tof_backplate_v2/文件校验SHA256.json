@@ -1,0 +1,15 @@
+{
+  "V2支柱缩短说明.md": "50b6af2279cd8e5c41c476c8759e19f20836a5e55bf2b65c33e75d5baedeb686",
+  "支柱5mm_模型预览.png": "13acb3173d994481b4a5c1b91273946f7d6388504c1b348b816cbb848abcacd3",
+  "模型\\TOF050C_U形安装背板_V2_支柱5mm.SLDPRT": "afbce75c8e23c9a5a9026b67f9a0474385dbbf152da01ddfa5e0ea31ad724893",
+  "模型\\TOF050C_U形安装背板_V2_支柱5mm.STEP": "240acf6c1f0a18cabeabf20677372dac6599c8fd838be718365d81ca9f9ee77f",
+  "模型\\TOF050C_U形安装背板_V2_支柱5mm_打印.STL": "89e233aa0068f90aecc58743061c2f57a31066931334dce506faf4e68facffe9",
+  "验证\\STL尺寸闭合与摆放.json": "756c0ca26b959bb001b3d653728a35865023578035c2d691e50b52e9ade4ab7c",
+  "验证\\TOF050C_U形安装背板_V2_支柱5mm_review_report.json": "06d5aa1fd9f5ffa90fe55d49351b4aacb9969ba33d9ce909ec203cdea338361d",
+  "验证\\TOF050C_U形安装背板_V2_支柱5mm_review_summary.md": "55bf540e2b5dada21e4ac3a9afa7ce5300b5ba9f10fcd8a75b2fd576b8a10e11",
+  "验证\\TOF050C_U形安装背板_V2_支柱5mm_SW坐标.STL": "9b8f3a424f5145074f7ae76d00cb99a90c2f040d214261d046d77a6c3064adb8",
+  "验证\\V2参数.json": "33dfd1d53d3745afb613c3e272739bb2a311443f66c5c5547b3a58370bee9372",
+  "验证\\创建草图记录.json": "84934ef8ac6a6b1c6bf2cf0888d6ee36c61e7af2430cf4cb53aaaf2801fc11bb",
+  "验证\\支柱减半与孔段实体核对.json": "564b3864ac8b301519bb378ba9563e65190b123f6c968b15c3ed12daf83d2915",
+  "验证\\目视复核.json": "67e14818b29cf2e097fb448646bbb76cd582ce6caa6585643767867c0fda089b"
+}

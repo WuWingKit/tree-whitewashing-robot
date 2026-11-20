@@ -1,0 +1,78 @@
+{
+  "date": "2026-11-20",
+  "version": "0.4.0-upper-usb-tof",
+  "profile": "pcb_v2",
+  "device_flashed": false,
+  "hardware_camera_tof_load_test": "not performed",
+  "builds": {
+    "stm32": "ARM Compiler 5, STM32F407ZGT6, application 0x08000000",
+    "esp32": "ESP-IDF 5.4.2, Arduino 3.2.1 component, ESP32-S3, pinned usb_host_uvc 2.6.0",
+    "esp32_app_bytes": 1016368,
+    "esp32_ota_slot_bytes": 1310720
+  },
+  "tests": {
+    "shared_C": "PASS: protocol, chassis, sensor telemetry, upper masks, invalid/old/duplicate commands, stop/estop, both independent watchdogs, clock/sequence wrap",
+    "web": "PASS: enable, hold/release, two independent upper requests, firmware feedback loss, network loss, cancelled enable, camera and OTA JS syntax",
+    "ota_image": "PASS: S3 header, wrong-chip/truncated/merged rejection, marker across all chunk boundaries",
+    "pinmap": "PASS: all three generated headers share the source JSON; GPIO positions unchanged",
+    "compiled_source": "PASS: final ESP source headers and protocol match build workspace",
+    "artifact": "PASS: profile hashes, APP SHA256/length, empty OTA selector, Intel HEX"
+  },
+  "artifacts": [
+    {
+      "path": "firmware/remote_control/stm32/build/pcb_v2/remote_control.hex",
+      "bytes": 30762,
+      "sha256": "249064f6617b691231ae56dfe8a7da7b3a341ba9b2b61ca74a32ba46722bdcb4"
+    },
+    {
+      "path": "firmware/remote_control/stm32/build/pcb_v2/remote_control.bin",
+      "bytes": 10916,
+      "sha256": "70052233590e8d39425d5e30f46f6056202e4f0b13cf6d37c1a87bb52ab2416e"
+    },
+    {
+      "path": "firmware/remote_control/stm32/build/pcb_v2/remote_control.axf",
+      "bytes": 850108,
+      "sha256": "b348213424c0919ac4bb5af507053e8dc4183309af6d89b591df5d8d01bbda1b"
+    },
+    {
+      "path": "firmware/remote_control/stm32/build/pcb_v2/wiring_profile.json",
+      "bytes": 1638,
+      "sha256": "027cfdf123d44422f0f34eb562b37215121a5f870f769ce9116f21a87cdf44b5"
+    },
+    {
+      "path": "firmware/remote_control/esp32/build/integrated/pcb_v2/bootloader.bin",
+      "bytes": 21024,
+      "sha256": "9713ebf9c520d4feb0901a20d70b808bfc9e61fcbcef57c5d04f8706315d4b8b"
+    },
+    {
+      "path": "firmware/remote_control/esp32/build/integrated/pcb_v2/partitions.bin",
+      "bytes": 3072,
+      "sha256": "148b959cbff1c38aa8e1d5c0ba9d612c54997b945e56a63f41223eef650653a1"
+    },
+    {
+      "path": "firmware/remote_control/esp32/build/integrated/pcb_v2/reset_otadata.bin",
+      "bytes": 8192,
+      "sha256": "7d2c7ac4888bfd75cd5f56e8d61f69595121183afc81556c876732fd3782c62f"
+    },
+    {
+      "path": "firmware/remote_control/esp32/build/integrated/pcb_v2/app.bin",
+      "bytes": 1016368,
+      "sha256": "a6bf72b3c2bc581aa8888318bec099527050c3b0cb3a9373e1bd50b9805f225e"
+    },
+    {
+      "path": "firmware/remote_control/esp32/build/integrated/pcb_v2/flasher_args.json",
+      "bytes": 946,
+      "sha256": "5dd11ba6a9e4c6e0b98ec6a53bb1758d33ea95b20d6fce81f7ab452a2dff7bc0"
+    },
+    {
+      "path": "firmware/remote_control/esp32/build/integrated/pcb_v2/ota.json",
+      "bytes": 198,
+      "sha256": "4623a812df46894370ec535adef6a3a2e62da75ca2f5eff0556cda3a47a5bcef"
+    },
+    {
+      "path": "firmware/remote_control/esp32/build/integrated/pcb_v2/wiring_profile.json",
+      "bytes": 1638,
+      "sha256": "027cfdf123d44422f0f34eb562b37215121a5f870f769ce9116f21a87cdf44b5"
+    }
+  ]
+}

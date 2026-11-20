@@ -1,12 +1,14 @@
 /* Adapted from local esp32s3_wifi.ino's WiFi/Serial setup.
  * Adds SoftAP, browser controls, leased commands and a CRC-protected UART.
  * Select ESP32S3 Dev Module; use the board's USB-UART connector to upload. */
+#include <Arduino.h>
 #include <WiFi.h>
 #include <WebServer.h>
 #include <esp_system.h>
 #include <errno.h>
 #include "src/rc_protocol.h"
 #include "web_ui.h"
+#include "robot_pinmap.h"
 
 static const char *AP_SSID="TreeRobotTest";
 static const char *AP_PASS="TreeTest2026"; // Demo-only AP; change before shared use.
@@ -19,6 +21,11 @@ static uint16_t txSeq=0;
 static uint32_t token=0,lastPC=0,lastMCU=0,lastRelay=0,lastWebSeq=0,armedAt=0;
 static bool seenMCU=false,mcuArmed=false,mcuEstop=false,awaitingArm=false;
 static int16_t leftDuty=0,rightDuty=0,mcuLeft=0,mcuRight=0;
+static uint32_t uartBytes=0,uartFrames=0;
+static uint8_t upperMask=0,mcuUpperMask=0;
+static uint32_t lastUpperMCU=0;
+static uint16_t mcuUpperSeq=0;
+static bool seenUpper=false;
 static void receiveSTM();
 
 static void sendFrame(uint8_t type,int16_t l=0,int16_t r=0) {
@@ -26,7 +33,7 @@ static void sendFrame(uint8_t type,int16_t l=0,int16_t r=0) {
   rc_encode(bytes,&f);stm.write(bytes,sizeof(bytes));
 }
 static void stopAll() {
-  token=0;awaitingArm=false;leftDuty=rightDuty=0;sendFrame(RC_STOP);
+  token=0;awaitingArm=false;leftDuty=rightDuty=0;upperMask=0;sendFrame(RC_STOP);
 }
 static bool mcuLive() {return seenMCU && (uint32_t)(millis()-lastMCU)<MCU_LEASE_MS;}
 static void reply(int code,const String &body) {
@@ -38,7 +45,12 @@ static bool numberArg(const char *key,long min,long max,long &out) {
   char *end=nullptr;errno=0;out=strtol(s.c_str(),&end,10);
   return errno!=ERANGE && end!=s.c_str() && *end=='\0' && out>=min && out<=max;
 }
+static void sensorBeginMaintenance();
+static bool sensorMaintenanceReady();
+static bool upperMaintenanceReady();
 #include "ota_support.h"
+#include "sensor_support.h"
+#include "upper_support.h"
 static void handleArm() {
   if(otaLocked) {reply(423,"{\"error\":\"firmware maintenance lock\"}");return;}
   uint32_t now=millis();
@@ -56,16 +68,21 @@ static void handleDrive() {
      !numberArg("left",-MAX_DUTY,MAX_DUTY,l) || !numberArg("right",-MAX_DUTY,MAX_DUTY,r)) {
     reply(400,"{\"error\":\"invalid command\"}");return;
   }
+  uint8_t requestedUpper=0;
+  if(!readUpperRequest(requestedUpper)) return;
   uint32_t now=millis();
   if(!token || (uint32_t)t!=token || (uint32_t)s<=lastWebSeq) {
     reply(409,"{\"error\":\"expired session or old sequence\"}");return;
   }
   if((uint32_t)(now-lastPC)>=PC_LEASE_MS || !mcuLive() || mcuEstop ||
-     (!mcuArmed && !awaitingArm) || (awaitingArm && (l||r))) {
+     (!mcuArmed && !awaitingArm) || (awaitingArm && (l||r||requestedUpper))) {
     stopAll();reply(409,"{\"error\":\"not armed; release controls and arm again\"}");return;
   }
+  if(requestedUpper && !upperLive()) {stopAll();reply(503,"{\"error\":\"upper-control STM32 firmware offline or incompatible\"}");return;}
   lastPC=now;lastWebSeq=(uint32_t)s;leftDuty=(int16_t)l;rightDuty=(int16_t)r;
+  upperMask=requestedUpper;
   sendFrame(RC_DRIVE,leftDuty,rightDuty);
+  sendUpper();
   reply(200,"{\"accepted\":true}"); // UART forwarding, not physical-motion acknowledgement.
 }
 static void handleStatus() {
@@ -73,20 +90,23 @@ static void handleStatus() {
     ",\"armed\":"+(mcuArmed?"true":"false")+",\"estop\":"+(mcuEstop?"true":"false")+
     ",\"owner\":"+(token?"true":"false")+",\"left\":"+String(mcuLeft)+
     ",\"right\":"+String(mcuRight)+",\"version\":\""+FW_VERSION+
-    "\",\"maintenance\":"+(otaLocked?"true":"false")+"}");
+    "\",\"maintenance\":"+(otaLocked?"true":"false")+",\"uart_bytes\":"+String(uartBytes)+
+    ",\"uart_frames\":"+String(uartFrames)+",\"upper\":"+upperJSON()+",\"tof\":"+sensorRangeJSON()+"}");
 }
 void setup() {
   Serial.begin(115200);
-  stm.begin(115200,SERIAL_8N1,18,17); // S3 RX18 <- F407 PA2; TX17 -> PA3.
+  stm.begin(115200,SERIAL_8N1,ROBOT_ESP_UART_RX,ROBOT_ESP_UART_TX);
   sendFrame(RC_STOP);WiFi.mode(WIFI_AP);
   if(!WiFi.softAP(AP_SSID,AP_PASS,1,false,2)) {while(true) {sendFrame(RC_STOP);delay(100);}}
   server.on("/",HTTP_GET,[](){server.sendHeader("Cache-Control","no-store");server.send_P(200,"text/html; charset=utf-8",WEB_UI);});
   server.on("/api/arm",HTTP_POST,handleArm);
   server.on("/api/drive",HTTP_POST,handleDrive);
+  server.on("/api/upper",HTTP_POST,handleUpper);
   /* Any AP client may stop; stopping never requires an ownership token. */
   server.on("/api/stop",HTTP_POST,[](){stopAll();reply(200,"{\"stopped\":true}");});
   server.on("/api/status",HTTP_GET,handleStatus);
   otaRoutes();
+  sensorsStart();sensorRoutes();
   server.onNotFound([](){reply(404,"{\"error\":\"not found\"}");});
   server.begin();Serial.print("Open http://");Serial.println(WiFi.softAPIP());
   Serial.printf("Firmware %s; %s; slot=0x%lx\n",FW_VERSION,RC_OTA_MARKER,
@@ -95,8 +115,14 @@ void setup() {
 static void receiveSTM() {
   unsigned budget=128;rc_frame_t f;
   while(stm.available() && budget--) {
-    if(rc_feed(&parser,(uint8_t)stm.read(),&f) &&
-       (f.type==RC_STATUS_DISARMED || f.type==RC_STATUS_ARMED || f.type==RC_STATUS_ESTOP)) {
+    uint8_t byte=(uint8_t)stm.read();uartBytes++;
+    if(!rc_feed(&parser,byte,&f)) continue;
+    uartFrames++;
+    sensorReceive(f);
+    if(f.type==RC_STATUS_UPPER && f.right==RC_UPPER_STATUS_TAG && f.left>=0 && f.left<=3) {
+      seenUpper=true;lastUpperMCU=millis();mcuUpperMask=(uint8_t)f.left;mcuUpperSeq=f.seq;
+    }
+    if(f.type==RC_STATUS_DISARMED || f.type==RC_STATUS_ARMED || f.type==RC_STATUS_ESTOP) {
       seenMCU=true;lastMCU=millis();mcuArmed=f.type==RC_STATUS_ARMED;
       mcuEstop=f.type==RC_STATUS_ESTOP;mcuLeft=f.left;mcuRight=f.right;
       if(mcuArmed) awaitingArm=false;
@@ -107,10 +133,11 @@ void loop() {
   receiveSTM();otaService();
   uint32_t now=millis();
   if(token && ((uint32_t)(now-lastPC)>=PC_LEASE_MS || !mcuLive() || mcuEstop ||
-     (!mcuArmed && !awaitingArm) || (awaitingArm && (uint32_t)(now-armedAt)>250u))) stopAll();
+     (!mcuArmed && !awaitingArm) || (upperMask && !upperLive()) ||
+     (awaitingArm && (uint32_t)(now-armedAt)>250u))) stopAll();
   if((uint32_t)(now-lastRelay)>=50u) {
     lastRelay=now;
-    if(token && !awaitingArm) sendFrame(RC_DRIVE,leftDuty,rightDuty);
+    if(token && !awaitingArm) {sendFrame(RC_DRIVE,leftDuty,rightDuty);sendUpper();}
     else if(!token) sendFrame(RC_STOP);
   }
   server.handleClient();
@@ -128,6 +155,8 @@ void loop() {
     Serial.printf("STATUS fw=%s online=%u armed=%u estop=%u L=%d R=%d ota_lock=%u slot=0x%lx\n",
       FW_VERSION,mcuLive(),mcuArmed,mcuEstop,mcuLeft,mcuRight,otaLocked,
       (unsigned long)esp_ota_get_running_partition()->address);
+    Serial.printf("UART rx=%lu frames=%lu baud=%lu pins=%d/%d\n",(unsigned long)uartBytes,
+      (unsigned long)uartFrames,(unsigned long)stm.baudRate(),uart_get_RxPin(1),uart_get_TxPin(1));
   }
   delay(1);
 }

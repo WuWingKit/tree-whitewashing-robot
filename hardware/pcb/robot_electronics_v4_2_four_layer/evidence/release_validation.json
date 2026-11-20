@@ -1,0 +1,131 @@
+{
+  "revision": "V4.2",
+  "validated_date": "2026-11-15",
+  "mode": "official native desktop CLI/API; saved, closed and cold reopened",
+  "boards": {
+    "controller": {
+      "copper_layers": [
+        1,
+        15,
+        16,
+        2
+      ],
+      "size_mm": [
+        100,
+        100
+      ],
+      "components": 85,
+      "pads": 497,
+      "stock_model_bindings": 85,
+      "native_drc_errors": 0,
+      "schematic_pin_net_differences": 0,
+      "ground_net": "GND",
+      "ground_pours": 4,
+      "layer_stack_mm": [
+        0.035,
+        0.2104,
+        0.0152,
+        1.065,
+        0.0152,
+        0.2104,
+        0.035
+      ],
+      "gerber_files": [
+        "Gerber_TopLayer.GTL",
+        "Gerber_BottomLayer.GBL",
+        "Gerber_TopSilkscreenLayer.GTO",
+        "Gerber_BottomSilkscreenLayer.GBO",
+        "Gerber_TopSolderMaskLayer.GTS",
+        "Gerber_BottomSolderMaskLayer.GBS",
+        "Gerber_TopPasteMaskLayer.GTP",
+        "Gerber_BottomPasteMaskLayer.GBP",
+        "Gerber_TopAssemblyLayer.GTA",
+        "Gerber_BoardOutlineLayer.GKO",
+        "Gerber_DocumentLayer.GDL",
+        "Gerber_InnerLayer1.G1",
+        "Gerber_InnerLayer2.G2",
+        "Gerber_DrillDrawingLayer.GDD",
+        "Drill_PTH_Through.DRL",
+        "Drill_NPTH_Through.DRL",
+        "Drill_PTH_Through_Via.DRL",
+        "FlyingProbeTesting.json",
+        "PCB下单必读.txt"
+      ]
+    },
+    "power": {
+      "copper_layers": [
+        1,
+        15,
+        16,
+        2
+      ],
+      "size_mm": [
+        100,
+        100
+      ],
+      "components": 42,
+      "pads": 111,
+      "stock_model_bindings": 42,
+      "native_drc_errors": 0,
+      "schematic_pin_net_differences": 0,
+      "ground_net": "P_GND",
+      "ground_pours": 4,
+      "layer_stack_mm": [
+        0.035,
+        0.2104,
+        0.0152,
+        1.065,
+        0.0152,
+        0.2104,
+        0.035
+      ],
+      "gerber_files": [
+        "Gerber_TopLayer.GTL",
+        "Gerber_BottomLayer.GBL",
+        "Gerber_TopSilkscreenLayer.GTO",
+        "Gerber_BottomSilkscreenLayer.GBO",
+        "Gerber_TopSolderMaskLayer.GTS",
+        "Gerber_BottomSolderMaskLayer.GBS",
+        "Gerber_TopPasteMaskLayer.GTP",
+        "Gerber_BoardOutlineLayer.GKO",
+        "Gerber_DocumentLayer.GDL",
+        "Gerber_InnerLayer1.G1",
+        "Gerber_InnerLayer2.G2",
+        "Gerber_DrillDrawingLayer.GDD",
+        "Drill_PTH_Through.DRL",
+        "Drill_NPTH_Through.DRL",
+        "Drill_PTH_Through_Via.DRL",
+        "FlyingProbeTesting.json",
+        "PCB下单必读.txt"
+      ]
+    }
+  },
+  "usb": {
+    "length_mm": {
+      "USB1_DM": 17.005980937530868,
+      "USB1_DP": 17.00598093753087,
+      "USB2_DM": 17.005980937530865,
+      "USB2_DP": 17.00598093753086
+    },
+    "width_mil": 10.4,
+    "gap_mil": 7,
+    "official_calculation_ohm": 90.4624081212,
+    "no_data_vias": true,
+    "same_layer_copper_cleared_near_pair": true,
+    "esd": "USBLC6-2SC6 flow-through escape retained",
+    "physical_tested": false
+  },
+  "gpio_labels": 144,
+  "post_review_fixes": {
+    "date": "2026-11-15",
+    "tof_pullups": "R1-R6 populated (DNP->no); BOM FIT 122 / DNP 5",
+    "irf_outline": "65x65 silk outline + label on power TOP silk",
+    "power_gerber": "release/power_V42_4Layer_Gerber.zip re-exported, 242951 bytes",
+    "drc_after": "controller 0 violations, power 0 violations",
+    "open_item": "no fuse/TVS on controller 5V input or servo 5V"
+  },
+  "limitations": [
+    "No bench load/current-temperature certification; user deferred load current specification.",
+    "USB official calculator covers coupled cross-section; connector/ESD escapes and real assembly require physical validation."
+  ]
+}

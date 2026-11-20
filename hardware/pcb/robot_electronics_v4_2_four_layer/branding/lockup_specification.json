@@ -1,0 +1,10 @@
+{
+  "icon_height_mm": 12,
+  "text_block_height_mm": 12,
+  "chinese_row_height_mm": 5,
+  "url_row_height_mm": 3.5,
+  "chinese_and_url_width_mm": 25.43938635002973,
+  "complete_width_mm": 37.64079282780521,
+  "vector_paths": 59,
+  "font_dependency": false
+}

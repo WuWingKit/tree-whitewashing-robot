@@ -59,7 +59,7 @@ def prepare(materials):
     groups = target.find("Groups")
     groups.clear()
     source_groups = {
-        "Application": ["App/main.c", "../common/rc_protocol.c", "../common/rc_control.c"],
+        "Application": ["App/main.c", "App/tof.c", "../common/rc_protocol.c", "../common/rc_control.c"],
         "ST CMSIS": [".vendor/CORE/startup_stm32f407xx.s", ".vendor/USER/system_stm32f4xx.c"],
         "ST HAL": [".vendor/HALLIB/STM32F4xx_HAL_Driver/Src/"+s+".c" for s in HAL_NAMES],
     }
@@ -72,10 +72,36 @@ def prepare(materials):
             ET.SubElement(f, "FileName").text = Path(source).name
             ET.SubElement(f, "FileType").text = "2" if source.endswith(".s") else "1"
             ET.SubElement(f, "FilePath").text = source.replace("/", "\\")
+    configure_profile_targets(tree)
     ET.indent(tree)
     ET.ElementTree(tree).write(ROOT/"stm32/RemoteControl.uvprojx", encoding="utf-8", xml_declaration=True)
     prepare_sketch()
     print("Prepared ST HAL/CMSIS, Keil project and Arduino sketch. Originals unchanged.")
+
+def configure_profile_targets(tree):
+    import copy
+    targets=tree.find('.//Targets')
+    base=next(t for t in targets if t.findtext('TargetName')=='RemoteControl')
+    define=base.find('TargetOption/TargetArmAds/Cads/VariousControls/Define')
+    original=[s for s in (define.text or '').split(',')if not s.startswith('ROBOT_WIRING_PROFILE=')]
+    define.text=','.join(original+['ROBOT_WIRING_PROFILE=0'])
+    pcb=next((t for t in targets if t.findtext('TargetName')=='RemoteControl_PCB_V1'),None)
+    if pcb is None:
+        pcb=copy.deepcopy(base);targets.append(pcb)
+    pcb.find('TargetName').text='RemoteControl_PCB_V1'
+    pcb.find('TargetOption/TargetArmAds/Cads/VariousControls/Define').text=','.join(original+['ROBOT_WIRING_PROFILE=1'])
+    common=pcb.find('TargetOption/TargetCommonOption')
+    common.find('OutputDirectory').text='.\\build\\pcb_v1\\'
+    common.find('ListingPath').text='.\\build\\pcb_v1\\'
+    pcb2=next((t for t in targets if t.findtext('TargetName')=='RemoteControl_PCB_V2'),None)
+    if pcb2 is None:
+        pcb2=copy.deepcopy(base);targets.append(pcb2)
+    pcb2.find('TargetName').text='RemoteControl_PCB_V2'
+    pcb2.find('TargetOption/TargetArmAds/Cads/VariousControls/Define').text=','.join(original+['ROBOT_WIRING_PROFILE=2'])
+    common=pcb2.find('TargetOption/TargetCommonOption')
+    common.find('OutputDirectory').text='.\\build\\pcb_v2\\'
+    common.find('ListingPath').text='.\\build\\pcb_v2\\'
+
 
 def prepare_sketch():
     sketch = ROOT/"esp32/RemoteControl"

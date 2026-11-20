@@ -1,0 +1,28 @@
+{
+  "controller": {
+    "name": "Controller_V2",
+    "board": "309777ae83bab083",
+    "pcb": "daeb45fb9d8aacfe",
+    "schematic": "dd6af801145c25a3",
+    "pages": {
+      "STM32": "e085d63868458cd9",
+      "ESP32": "41800d64dc23dc1e",
+      "Chassis_ToF": "e01368ca91e9a8b4",
+      "Power": "7800bdee21e708ce",
+      "USB_Cameras": "48a5c16fc871a909",
+      "Actuators": "81c4a6c3b30567b1",
+      "Interfaces": "073c1575d19a3c0e"
+    }
+  },
+  "power": {
+    "name": "Upper_Power_V2",
+    "board": "338dc9ee204014b9",
+    "pcb": "4f7292ce085ce78c",
+    "schematic": "6ed3d5c8f9aa9037",
+    "pages": {
+      "Input_12V": "d5a2c95e5c4f8c50",
+      "Boost_24V": "5d0d72791276ff4d",
+      "IRF_Interface": "fa1560eba8fe4409"
+    }
+  }
+}

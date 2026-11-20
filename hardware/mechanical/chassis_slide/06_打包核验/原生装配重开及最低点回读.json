@@ -1,0 +1,370 @@
+{
+  "components": 37,
+  "chassis_bodies": 90,
+  "minimum_added_y_mm": 40.0,
+  "details": [
+    {
+      "component": "V2_M4x25_参考-3",
+      "part": "V2_M4x25_参考.SLDPRT",
+      "min_y_mm": 101.5
+    },
+    {
+      "component": "V2_M4垫圈_参考-7",
+      "part": "V2_M4垫圈_参考.SLDPRT",
+      "min_y_mm": 125.5
+    },
+    {
+      "component": "V2_M4x25_参考-4",
+      "part": "V2_M4x25_参考.SLDPRT",
+      "min_y_mm": 101.5
+    },
+    {
+      "component": "V2_M4垫圈_参考-5",
+      "part": "V2_M4垫圈_参考.SLDPRT",
+      "min_y_mm": 125.5
+    },
+    {
+      "component": "V2_02_上层C型座_加筋-1",
+      "part": "V2_02_上层C型座_加筋.SLDPRT",
+      "min_y_mm": 107.5
+    },
+    {
+      "component": "V2_M3垫圈_参考-1",
+      "part": "V2_M3垫圈_参考.SLDPRT",
+      "min_y_mm": 76.5
+    },
+    {
+      "component": "V2_M4垫圈_参考-3",
+      "part": "V2_M4垫圈_参考.SLDPRT",
+      "min_y_mm": 64.0
+    },
+    {
+      "component": "V2_M4螺母_包络参考-2",
+      "part": "V2_M4螺母_包络参考.SLDPRT",
+      "min_y_mm": 41.8
+    },
+    {
+      "component": "V2_M4螺母_包络参考-3",
+      "part": "V2_M4螺母_包络参考.SLDPRT",
+      "min_y_mm": 103.3
+    },
+    {
+      "component": "V2_M4垫圈_参考-4",
+      "part": "V2_M4垫圈_参考.SLDPRT",
+      "min_y_mm": 45.0
+    },
+    {
+      "component": "V2_03_车板间隙垫片_0.5mm-3",
+      "part": "V2_03_车板间隙垫片_0.5mm.SLDPRT",
+      "min_y_mm": 119.0
+    },
+    {
+      "component": "V2_03_车板间隙垫片_0.5mm-4",
+      "part": "V2_03_车板间隙垫片_0.5mm.SLDPRT",
+      "min_y_mm": 113.5
+    },
+    {
+      "component": "V2_M4垫圈_参考-6",
+      "part": "V2_M4垫圈_参考.SLDPRT",
+      "min_y_mm": 106.5
+    },
+    {
+      "component": "V2_M4螺母_包络参考-4",
+      "part": "V2_M4螺母_包络参考.SLDPRT",
+      "min_y_mm": 103.3
+    },
+    {
+      "component": "V2_M3x16_参考-1",
+      "part": "V2_M3x16_参考.SLDPRT",
+      "min_y_mm": 77.25
+    },
+    {
+      "component": "V2_M3垫圈_参考-4",
+      "part": "V2_M3垫圈_参考.SLDPRT",
+      "min_y_mm": 176.5
+    },
+    {
+      "component": "V2_M4垫圈_参考-8",
+      "part": "V2_M4垫圈_参考.SLDPRT",
+      "min_y_mm": 106.5
+    },
+    {
+      "component": "V2_M3螺母_包络参考-1",
+      "part": "V2_M3螺母_包络参考.SLDPRT",
+      "min_y_mm": 76.825
+    },
+    {
+      "component": "V2_M3螺母_包络参考-2",
+      "part": "V2_M3螺母_包络参考.SLDPRT",
+      "min_y_mm": 76.825
+    },
+    {
+      "component": "V2_M3螺母_包络参考-3",
+      "part": "V2_M3螺母_包络参考.SLDPRT",
+      "min_y_mm": 176.825
+    },
+    {
+      "component": "V2_M3垫圈_参考-2",
+      "part": "V2_M3垫圈_参考.SLDPRT",
+      "min_y_mm": 76.5
+    },
+    {
+      "component": "V2_M3垫圈_参考-3",
+      "part": "V2_M3垫圈_参考.SLDPRT",
+      "min_y_mm": 176.5
+    },
+    {
+      "component": "V2_M3x16_参考-4",
+      "part": "V2_M3x16_参考.SLDPRT",
+      "min_y_mm": 177.25
+    },
+    {
+      "component": "V2_M3x16_参考-3",
+      "part": "V2_M3x16_参考.SLDPRT",
+      "min_y_mm": 177.25
+    },
+    {
+      "component": "V2_M3x16_参考-2",
+      "part": "V2_M3x16_参考.SLDPRT",
+      "min_y_mm": 77.25
+    },
+    {
+      "component": "V2_M3螺母_包络参考-4",
+      "part": "V2_M3螺母_包络参考.SLDPRT",
+      "min_y_mm": 176.825
+    },
+    {
+      "component": "V2_GX28_200_SW2020-1",
+      "part": "V2_GX28_200_SW2020.SLDPRT",
+      "min_y_mm": 55.99999999999999
+    },
+    {
+      "component": "V2_01_下层C型座_加筋-1",
+      "part": "V2_01_下层C型座_加筋.SLDPRT",
+      "min_y_mm": 46.00000000000001
+    },
+    {
+      "component": "V2_03_车板间隙垫片_0.5mm-1",
+      "part": "V2_03_车板间隙垫片_0.5mm.SLDPRT",
+      "min_y_mm": 57.50000000000001
+    },
+    {
+      "component": "V2_03_车板间隙垫片_0.5mm-2",
+      "part": "V2_03_车板间隙垫片_0.5mm.SLDPRT",
+      "min_y_mm": 52.00000000000001
+    },
+    {
+      "component": "V2_M4x25_参考-1",
+      "part": "V2_M4x25_参考.SLDPRT",
+      "min_y_mm": 40.0
+    },
+    {
+      "component": "V2_M4垫圈_参考-1",
+      "part": "V2_M4垫圈_参考.SLDPRT",
+      "min_y_mm": 64.0
+    },
+    {
+      "component": "V2_M4螺母_包络参考-1",
+      "part": "V2_M4螺母_包络参考.SLDPRT",
+      "min_y_mm": 41.8
+    },
+    {
+      "component": "V2_M4x25_参考-2",
+      "part": "V2_M4x25_参考.SLDPRT",
+      "min_y_mm": 40.0
+    },
+    {
+      "component": "V2_M4垫圈_参考-2",
+      "part": "V2_M4垫圈_参考.SLDPRT",
+      "min_y_mm": 45.0
+    }
+  ],
+  "mates": [
+    {
+      "name": "配合",
+      "type": "MateGroup",
+      "depth": 0
+    },
+    {
+      "name": "电机朝上_背面保持朝车板",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "01_下层C型座_加筋",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "间隙垫片",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "锁定4",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "车板螺栓",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "车板上垫圈",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "车板下垫圈",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "车板螺母",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "锁定9",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "锁定10",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "锁定11",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "锁定12",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "02_上层C型座_加筋",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "锁定14",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "锁定15",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "锁定16",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "锁定17",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "锁定18",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "锁定19",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "锁定20",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "锁定21",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "锁定22",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "锁定23",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "滑台连接螺栓",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "滑台后垫圈",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "滑台后螺母",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "锁定27",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "锁定28",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "锁定29",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "锁定30",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "锁定31",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "锁定32",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "锁定33",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "锁定34",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "锁定35",
+      "type": "MateLock",
+      "depth": 1
+    },
+    {
+      "name": "车轮接地平面Y0",
+      "type": "MateLock",
+      "depth": 1
+    }
+  ],
+  "revision": "28.5.0"
+}

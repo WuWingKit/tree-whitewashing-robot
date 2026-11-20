@@ -2,11 +2,21 @@
 #include <Update.h>
 #include <esp_ota_ops.h>
 #include <mbedtls/sha256.h>
+#include <mbedtls/version.h>
+#if MBEDTLS_VERSION_MAJOR >= 3
+#define mbedtls_sha256_starts_ret mbedtls_sha256_starts
+#define mbedtls_sha256_update_ret mbedtls_sha256_update
+#define mbedtls_sha256_finish_ret mbedtls_sha256_finish
+#endif
 #include "ota_config.h"
 #include "src/rc_ota_image.h"
 #include "ota_ui.h"
 
-static const char *FW_VERSION="0.2.0-ota";
+#ifdef TREE_SENSOR_USB
+static const char *FW_VERSION="0.4.0-upper-usb-tof";
+#else
+static const char *FW_VERSION="0.4.0-upper-tof";
+#endif
 static bool otaLocked=false,otaReady=false,otaWriting=false,otaSucceeded=false;
 static bool otaStandalone=false,otaAcceptedUpload=false,otaHeaderChecked=false;
 static bool otaPayloadComplete=false,otaFileSeen=false;
@@ -43,6 +53,7 @@ static void otaPrepare() {
     reply(400,"{\"error\":\"invalid target, size, SHA256 or OTA partition\"}");return;
   }
   otaCancel();otaLocked=true;otaStandalone=server.arg("standalone")=="1";
+  sensorBeginMaintenance();
   otaExpected=(size_t)size;otaSHA=sha;otaWritten=0;otaMarker={};
   otaPreparedAt=millis();otaLastActivity=millis();
   char session[33];snprintf(session,sizeof(session),"%08lx%08lx%08lx%08lx",
@@ -119,9 +130,9 @@ static void otaService() {
   if((uint32_t)(now-otaLastActivity)>60000u && !otaError.length()) {otaFail("OTA session expired");return;}
   if(otaWriting || otaError.length() || otaReady) return;
   if((uint32_t)(now-otaPreparedAt)>=500u) {
-    bool stopped=mcuLive() && !mcuArmed && !mcuLeft && !mcuRight;
-    if(stopped || (otaStandalone && !mcuLive())) {otaReady=true;return;}
-    if((uint32_t)(now-otaPreparedAt)>3000u) otaFail("cannot confirm STM32 stopped");
+    bool stopped=mcuLive() && !mcuArmed && !mcuLeft && !mcuRight && upperMaintenanceReady();
+    if((stopped || (otaStandalone && !mcuLive())) && sensorMaintenanceReady()) {otaReady=true;return;}
+    if((uint32_t)(now-otaPreparedAt)>8000u) otaFail("cannot confirm STM32/upper outputs/cameras stopped");
   }
 }
 static void otaRoutes() {

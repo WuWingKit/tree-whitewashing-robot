@@ -1,0 +1,56 @@
+{
+  "units": "mm",
+  "board_thickness": 5,
+  "c_gap": 6,
+  "shim_each_side": 0.5,
+  "width": 104,
+  "vertical_plate_width": 64,
+  "wing_thickness": 6,
+  "vertical_plate_thickness": 8,
+  "rib_thickness": 6,
+  "depth": 48,
+  "lower_height": 52,
+  "upper_height": 92,
+  "lower_slot_center_y": 22.5,
+  "upper_slot_center_y": 61,
+  "slot_width": 4,
+  "slot_overall_length": 20,
+  "slot_center_travel_each_side": 8,
+  "slide_slot_pitch": 20,
+  "slide_rows_source_x": [
+    -160,
+    -60
+  ],
+  "slide_row_pitch": 100,
+  "board_hole_d_printed": 5,
+  "acrylic_drill_d": 4.5,
+  "board_hole_pitch": 84,
+  "drill_from_straight_side_edge": 29.5,
+  "drill_from_chassis_length_midplane": [
+    -42,
+    42
+  ],
+  "nominal_board_top_pitch": 61.5,
+  "recommended_adjustable_board_top_pitch": [
+    55,
+    75
+  ],
+  "stage_ground_clearance_nominal": 56,
+  "fasteners": {
+    "M3x16": 4,
+    "M3_nut": 4,
+    "M3_washer": 4,
+    "M4x25": 4,
+    "M4_nut": 4,
+    "M4_washer": 8
+  },
+  "print_quantity": {
+    "01_lower": 1,
+    "02_upper": 1,
+    "03_shim": 4
+  },
+  "version": "V2_电机朝上_原整车与地面验证",
+  "minimum_added_ground_clearance": 40,
+  "source_car_model_solids": 90,
+  "motor_orientation": "up"
+}

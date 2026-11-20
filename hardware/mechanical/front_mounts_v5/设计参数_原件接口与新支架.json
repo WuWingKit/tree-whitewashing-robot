@@ -1,0 +1,206 @@
+{
+  "units": "mm",
+  "print_scale": "100%",
+  "camera": {
+    "print_qty": 1,
+    "bounding_size": [
+      56,
+      14,
+      28
+    ],
+    "base_thickness": 3,
+    "arms_thickness": 5,
+    "mount_holes": {
+      "diameter": 3.1,
+      "pitch": 48,
+      "centers_xy": [
+        [
+          -24,
+          24
+        ],
+        [
+          24,
+          24
+        ]
+      ],
+      "type": "round; identical to original shell"
+    },
+    "base_holes": {
+      "diameter": 3.6,
+      "pitch": 48,
+      "centers_xz": [
+        [
+          -24,
+          -4.5
+        ],
+        [
+          24,
+          -4.5
+        ]
+      ]
+    },
+    "base_window": {
+      "width": 40,
+      "depth": 10,
+      "z_range": [
+        -5,
+        5
+      ]
+    },
+    "camera_center_above_car": 24,
+    "USB_normal": [
+      0,
+      1,
+      0
+    ],
+    "case_max_height_above_car": 44
+  },
+  "tof": {
+    "print_qty": 2,
+    "bounding_size": [
+      35,
+      12,
+      30
+    ],
+    "base_size": [
+      32,
+      12,
+      3
+    ],
+    "arms_width": 8,
+    "arms_thickness": 3,
+    "mount_holes": {
+      "diameter": 3.6,
+      "pitch": 27,
+      "centers_xy": [
+        [
+          -13.5,
+          25
+        ],
+        [
+          13.5,
+          25
+        ]
+      ],
+      "uses": "original backplate lower row x±13.5,y−9"
+    },
+    "base_holes": {
+      "diameter": 3.6,
+      "pitch": 22,
+      "centers_xz": [
+        [
+          -11,
+          -4.5
+        ],
+        [
+          11,
+          -4.5
+        ]
+      ]
+    },
+    "module_origin_above_car": 34,
+    "backplate_low_edge_above_car": 21,
+    "down_connector_gauge": [
+      17,
+      23,
+      8.5
+    ],
+    "connector_bottom_above_car": 5,
+    "connector_bottom_above_base": 2
+  },
+  "source_parameters": {
+    "camera_PCB": [
+      32,
+      32,
+      1.2
+    ],
+    "camera_PCB_pitch": [
+      28,
+      28
+    ],
+    "camera_raw_PCB_hole_d": 2.2,
+    "camera_case_body": [
+      40,
+      40,
+      18
+    ],
+    "camera_case_with_ears": [
+      60,
+      40,
+      18
+    ],
+    "camera_case_mount_pitch": 48,
+    "camera_case_mount_hole_d": 3.1,
+    "tof_PCB": [
+      20,
+      11
+    ],
+    "tof_raw_PCB_hole_d": 2,
+    "tof_PCB_hole_pitch": 14.4,
+    "tof_backplate": [
+      36,
+      26,
+      3
+    ],
+    "tof_backplate_module_hole_d": 2.2,
+    "tof_backplate_external_pitch": [
+      27,
+      18
+    ],
+    "tof_backplate_external_hole_d": 3.6
+  },
+  "car_six_holes_unchanged_from_V4": true,
+  "hardware": {
+    "case_common_M2.5x10_reuse": 2,
+    "base_M3x14": 6,
+    "backplate_M3x12": 4,
+    "new_M3_nut": 10,
+    "new_M3_washer": 20
+  },
+  "actual_brep_results": {
+    "01_V5_相机双耳短叉支架_孔3.1距48_定尺寸": {
+      "valid_BRep": true,
+      "single_closed_connected_mesh": true,
+      "span_mm": [
+        56.0,
+        14.0,
+        28.0
+      ],
+      "volume_mm3": 3015.45067531172,
+      "reduction_vs_V4_solid_percent": 83.7,
+      "round_mount_holes": {
+        "quantity": 2,
+        "diameter": 3.1,
+        "pitch": 48
+      },
+      "round_base_holes": {
+        "quantity": 2,
+        "diameter": 3.6,
+        "pitch": 48
+      },
+      "print_quantity": 1
+    },
+    "02_V5_TOF双臂短支架_孔3.6距27_定尺寸": {
+      "valid_BRep": true,
+      "single_closed_connected_mesh": true,
+      "span_mm": [
+        35.0,
+        12.0,
+        30.0
+      ],
+      "volume_mm3": 2325.8548776284297,
+      "reduction_vs_V4_solid_percent": 78.7,
+      "round_mount_holes": {
+        "quantity": 2,
+        "diameter": 3.6,
+        "pitch": 27
+      },
+      "round_base_holes": {
+        "quantity": 2,
+        "diameter": 3.6,
+        "pitch": 22
+      },
+      "print_quantity": 2
+    }
+  }
+}

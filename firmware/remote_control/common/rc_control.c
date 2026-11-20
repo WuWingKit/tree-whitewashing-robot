@@ -6,7 +6,7 @@ void rc_control_init(rc_control_t *c,uint32_t now) {
     c->zero_since[0]=now;c->zero_since[1]=now;
 }
 void rc_control_stop(rc_control_t *c,uint32_t now) {
-    unsigned i;c->armed=0;
+    unsigned i;c->armed=0;c->upper_output=0;c->upper_seen=0;
     for(i=0;i<2;i++) {
         if(c->output[i]) c->zero_since[i]=now;
         c->target[i]=0;c->output[i]=0;
@@ -18,8 +18,16 @@ void rc_control_estop(rc_control_t *c,int pressed,uint32_t now) {
 }
 int rc_control_command(rc_control_t *c,const rc_frame_t *f,uint32_t now) {
     /* A newly arrived drive packet must not revive an already expired session. */
-    if(c->armed && (uint32_t)(now-c->last_drive)>=RC_TIMEOUT_MS) rc_control_stop(c,now);
+    if(c->armed && ((uint32_t)(now-c->last_drive)>=RC_TIMEOUT_MS ||
+       (c->upper_seen && (uint32_t)(now-c->last_upper)>=RC_TIMEOUT_MS))) rc_control_stop(c,now);
     if(f->type==RC_STOP) {rc_control_stop(c,now);c->last_seq=f->seq;return 1;}
+    if(f->type==RC_UPPER) {
+        if(!c->armed || c->estop || f->left<0 || f->left>(int16_t)RC_UPPER_MASK || f->right) return 0;
+        /* A duplicated/old upper command cannot extend its own lease. */
+        if(c->upper_seen && (int16_t)(f->seq-c->upper_seq)<=0) return 0;
+        c->upper_output=(uint8_t)f->left;c->upper_seen=1;c->upper_seq=f->seq;
+        c->last_upper=now;c->last_seq=f->seq;return 1;
+    }
     if(f->left>RC_MAX_DUTY || f->left < -RC_MAX_DUTY ||
        f->right>RC_MAX_DUTY || f->right < -RC_MAX_DUTY) return 0;
     if(f->type==RC_ARM && !f->left && !f->right && !c->estop) {
@@ -39,7 +47,8 @@ int rc_control_command(rc_control_t *c,const rc_frame_t *f,uint32_t now) {
 }
 void rc_control_tick(rc_control_t *c,uint32_t now) {
     unsigned i;
-    if(!c->armed || c->estop || (uint32_t)(now-c->last_drive)>=RC_TIMEOUT_MS) {
+    if(!c->armed || c->estop || (uint32_t)(now-c->last_drive)>=RC_TIMEOUT_MS ||
+       (c->upper_seen && (uint32_t)(now-c->last_upper)>=RC_TIMEOUT_MS)) {
         rc_control_stop(c,now);return;
     }
     if((uint32_t)(now-c->last_tick)<10u) return;

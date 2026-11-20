@@ -1,0 +1,69 @@
+{
+  "body_mm": [
+    40,
+    40,
+    18
+  ],
+  "overall_mm": [
+    60,
+    40,
+    18
+  ],
+  "old_overall_mm": [
+    72,
+    72,
+    20
+  ],
+  "footprint_reduction_percent": 53.703703703703695,
+  "datum_unchanged": {
+    "panel_z": [
+      9,
+      11.5
+    ],
+    "pcb_z": [
+      16.8,
+      18
+    ],
+    "lens_hole_d": 16.8
+  },
+  "clearances_mm": {
+    "pcb_max_to_wall_each_side": 1.85,
+    "pcb_support_to_wall": 1.25,
+    "pcb_back_to_cover": 6,
+    "pcb_front_to_panel": 5.3,
+    "nut_slot_each_side": 0.3,
+    "rear_ear_recess_each_side": 0.5
+  },
+  "screws": {
+    "pcb": {
+      "type": "M2x10",
+      "head_seat_z": 16.8,
+      "end_z": 26.8,
+      "nut_z": [
+        24.8,
+        26.0
+      ],
+      "end_inside_rear_face": 0.2
+    },
+    "common_mount": {
+      "type": "M2.5x10",
+      "frame_thickness": 5,
+      "head_seat_z": 32,
+      "end_z": 22,
+      "nut_z": [
+        22.7,
+        24.3
+      ],
+      "thread_beyond_nut": 0.7,
+      "printed_grip": 2.7,
+      "frame_plus_printed_plus_nut": 9.3,
+      "no_washer": true
+    }
+  },
+  "source_native_files_unchanged": true,
+  "limitations": [
+    "实际镜头、USB插头及板背元件未提供实体；需实物试配",
+    "按本次紧凑要求缩小侧向空间，替代旧版侧壁5mm净距；前后净距仍超过5mm",
+    "5mm车架需匹配48mm孔距的连接件或孔位，未声明原车架有此孔距"
+  ]
+}

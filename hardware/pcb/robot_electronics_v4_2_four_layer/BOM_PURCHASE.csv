@@ -1,0 +1,49 @@
+supplier_part,manufacturer_part,total_quantity,fit_quantity,dnp_quantity,refs,product_url,checked_utc,stock_at_check
+C2883998,X6521FV-2x25-C85D32,2,2,0,controller:J_STM_JP1; controller:J_STM_JP2,https://item.szlcsc.com/3094490.html,2026-11-13T13:05:18Z,94
+C22465948,PZ254V-12-50P,2,2,0,controller:J_EXT_STM_JP1; controller:J_EXT_STM_JP2,https://item.szlcsc.com/24163090.html,2026-11-13T13:05:33Z,685
+C7499337,ZX-PM2.54-1-22PY,2,2,0,controller:J_ESP_J1; controller:J_ESP_J2,https://item.szlcsc.com/8573998.html,2026-11-13T13:04:46Z,10170
+C20610289,KH-2.54PH180-1X22P-L11.5,2,2,0,controller:J_EXT_ESP_J1; controller:J_EXT_ESP_J2,https://item.szlcsc.com/21960934.html,2026-11-13T13:04:36Z,120
+C492424,PZ254V-12-14P,1,1,0,controller:J_TB_CTRL,https://item.szlcsc.com/502980.html,2026-11-13T13:27:46Z,27590
+C2905435,KH-2.54PH180-1X4P-L11.5,5,5,0,controller:J_TOF0; controller:J_TOF1; controller:J_TOF2; controller:J_HUB1; controller:J_HUB2,https://item.szlcsc.com/3175223.html,2026-11-13T13:03:29Z,7160
+C23162,0603WAF4701T5E,7,7,0,controller:R1; controller:R2; controller:R3; controller:R4; controller:R5; controller:R6; power:R8,https://item.szlcsc.com/23889.html,2026-11-13T13:05:41Z,2051400
+C2905434,KH-2.54PH180-1X2P-L11.5,17,17,0,controller:J_3V3_1; controller:J_3V3_2; controller:J_3V3_3; controller:J_3V3_4; controller:J_3V3_5; controller:J_3V3_6; controller:J_5V_1; controller:J_5V_2; controller:J_5V_3; controller:J_5V_4; controller:J_5V_5; controller:J_5V_6; controller:JP_PWR_STM; controller:JP_PWR_ESP; controller:J_HUB_PWR; controller:J_LIMIT_LOW; controller:J_LIMIT_HIGH,https://item.szlcsc.com/3175222.html,2026-11-13T13:05:44Z,13550
+C474952,KF128-5.08-2P-AA,9,9,0,controller:J_5V_IN; power:J_BAT_IN; power:J_IRF_12; power:J_12V_AUX; power:J_SLIDE_12; power:J_SLIDE_24; controller:J_STEP_PUL; controller:J_STEP_DIR; controller:J_STEP_ENA,https://item.szlcsc.com/481570.html,2026-11-13T13:03:10Z,60230
+C2071868,AP63200WU-7,1,1,0,controller:U1,https://item.szlcsc.com/2163451.html,2026-11-13T13:11:29Z,7392
+C138515,SPM6530T-6R8M,1,1,0,controller:L1,https://item.szlcsc.com/149834.html,2026-11-13T13:12:10Z,5265
+C30926,0603B104K500NT,4,4,0,controller:C1; controller:C5; power:C3; power:C7,https://item.szlcsc.com/31683.html,2026-11-13T13:03:34Z,837700
+C9807,CL31A106KAHNNNE,1,1,0,controller:C2,https://item.szlcsc.com/10337.html,2026-11-13T13:03:34Z,924200
+C12891,CL31A226KAHNNNE,2,2,0,controller:C3; controller:C4,https://item.szlcsc.com/13537.html,2026-11-13T13:03:33Z,1088020
+C25804,0603WAF1002T5E,8,8,0,controller:R7; controller:R8; controller:R9; controller:R10; controller:R20; controller:R21; power:R2; power:R9,https://item.szlcsc.com/26547.html,2026-11-13T13:03:10Z,2243900
+C2345,902-131A1011D10100,2,2,0,controller:J_CAM1; controller:J_CAM2,https://item.szlcsc.com/2721.html,2026-11-13T14:55:29Z,29290
+C46472656,5264-03A,1,1,0,controller:J_SERVO,https://item.szlcsc.com/48592881.html,2026-11-13T13:02:03Z,1605
+C7484,SN74AHCT1G125DBVR,1,1,0,controller:U_SERVO,https://item.szlcsc.com/7961.html,2026-11-13T13:05:43Z,1995
+C22962,0603WAF2200T5E,2,2,0,controller:R11; controller:R29,https://item.szlcsc.com/23689.html,2026-11-13T13:05:42Z,870600
+C25803,0603WAF1003T5E,9,5,4,controller:R12; controller:R15; controller:R17; controller:R19; controller:R22; controller:R23; controller:R24; controller:R25; power:R5,https://item.szlcsc.com/26546.html,2026-11-13T13:03:10Z,6096000
+C17888,1206W4F0000T5E,1,1,0,controller:R13,https://item.szlcsc.com/18576.html,2026-11-13T13:03:33Z,698600
+C96123,CL31A476MPHNNNE,1,1,0,controller:C6,https://item.szlcsc.com/97327.html,2026-11-13T13:03:33Z,104610
+C20526,MMBT3904(RANGE:100-300),3,3,0,controller:Q_PUL; controller:Q_DIR; controller:Q_ENA,https://item.szlcsc.com/21237.html,2026-11-13T13:05:44Z,3880100
+C4190,0603WAF2201T5E,4,4,0,controller:R14; controller:R16; controller:R18; controller:R28,https://item.szlcsc.com/4597.html,2026-11-13T13:05:40Z,1950100
+C41355732,PZ254V-12-08P-RD,2,2,0,controller:J_UPPER; power:J_CTRL_LINK,https://item.szlcsc.com/43092918.html,2026-11-13T13:10:44Z,1280
+C2687116,USBLC6-2SC6,2,2,0,controller:U_USB_ESD1; controller:U_USB_ESD2,https://item.szlcsc.com/2790619.html,2026-11-13T13:02:04Z,61120
+C381116,DC-005-5A-2.0,1,1,0,power:J_DC,https://item.szlcsc.com/353348.html,2026-11-13T13:05:09Z,4320
+C3165131,0451003.NRL,2,2,0,power:F_DC; power:F_TERM,https://item.szlcsc.com/3727068.html,2026-11-13T13:02:03Z,127
+C72264,B540C-13-F,3,3,0,power:D_OR_DC; power:D_OR_TERM; power:D_BOOST,https://item.szlcsc.com/73373.html,2026-11-13T13:05:42Z,76965
+C48467,0451005.MRL,1,1,0,power:F_MASTER,https://item.szlcsc.com/49474.html,2026-11-13T13:02:05Z,26490
+C713400,EEUFR1E471B,1,1,0,power:C1,https://item.szlcsc.com/753608.html,2026-11-13T13:12:11Z,310
+C357961,SMBJ15A,1,1,0,power:D_TVS12,https://item.szlcsc.com/333045.html,2026-11-13T13:02:04Z,9400
+C169167,TPS55340RTER,1,1,0,power:U_BOOST,https://item.szlcsc.com/180552.html,2026-11-13T13:02:03Z,24928
+C360724,SPM10054T-100M-HZ,1,1,0,power:L_BOOST,https://item.szlcsc.com/335511.html,2026-11-13T13:05:33Z,764
+C97973,GRM32ER7YA106KA12L,1,1,0,power:C2,https://item.szlcsc.com/99182.html,2026-11-13T13:02:04Z,1873
+C86052,GRM32ER71H475KA88L,3,3,0,power:C4; power:C5; power:C6,https://item.szlcsc.com/87228.html,2026-11-13T13:02:04Z,8125
+C22896,0603WAF1873T5E,1,1,0,power:R1,https://item.szlcsc.com/23623.html,2026-11-13T13:05:42Z,13700
+C23109,0603WAF7872T5E,1,1,0,power:R3,https://item.szlcsc.com/23836.html,2026-11-13T13:03:10Z,9100
+C25965,0603WAF2551T5E,1,1,0,power:R4,https://item.szlcsc.com/26708.html,2026-11-13T13:03:10Z,79800
+C335544,0603N101J500CT,2,2,0,power:C8; controller:C7,https://item.szlcsc.com/313796.html,2026-11-13T13:03:34Z,494650
+C285123,0603B473K500NT,1,1,0,power:C9,https://item.szlcsc.com/270548.html,2026-11-13T13:03:34Z,183350
+C2932698,KH-2.54PH180-1X3P-L11.5,5,5,0,power:JP_BOOST_EN; power:J_IRF_CH1; power:J_IRF_CH2; power:J_IRF_CH3; power:J_IRF_CH4,https://item.szlcsc.com/3278219.html,2026-11-13T13:03:29Z,4860
+C474170,25121WF2401T4E,1,1,0,power:R6,https://item.szlcsc.com/480703.html,2026-11-13T13:05:42Z,19830
+C224017,SMBJ24A,1,1,0,power:D_TVS24,https://item.szlcsc.com/224165.html,2026-11-13T13:05:12Z,7110
+C21189,0603WAF0000T5E,1,0,1,power:R7,https://item.szlcsc.com/21903.html,2026-11-13T13:03:33Z,8537500
+C22930,0603WAF1963T5E,1,1,0,controller:R26,https://item.szlcsc.com/23657.html,2026-11-13T13:13:30Z,41600
+C23221,0603WAF6202T5E,1,1,0,controller:R27,https://item.szlcsc.com/23948.html,2026-11-13T13:13:29Z,94100
+C2297,KT-0805G,4,4,0,controller:LED1; controller:LED2; power:LED1; power:LED2,https://item.szlcsc.com/2670.html,2026-11-14T06:05:18Z,871300

@@ -1,0 +1,178 @@
+{
+  "default_profile": "legacy",
+  "pcb_v1_status": "layout-candidate-not-for-existing-wiring",
+  "profiles": {
+    "legacy": {
+      "revision": "existing_wiring_20261110",
+      "uart": {
+        "stm_tx": "PA2",
+        "stm_rx": "PA3",
+        "esp_tx": "GPIO17",
+        "esp_rx": "GPIO18"
+      },
+      "motor": [
+        {
+          "channel": 1,
+          "pwm": "PE9",
+          "in1": "PG11",
+          "in2": "PG12"
+        },
+        {
+          "channel": 2,
+          "pwm": "PE11",
+          "in1": "PG13",
+          "in2": "PF8"
+        },
+        {
+          "channel": 3,
+          "pwm": "PE13",
+          "in1": "PD3",
+          "in2": "PD6"
+        },
+        {
+          "channel": 4,
+          "pwm": "PE14",
+          "in1": "PD7",
+          "in2": "PE2"
+        }
+      ],
+      "tof": [
+        {
+          "scl": "PF4",
+          "sda": "PF5"
+        },
+        {
+          "scl": "PF11",
+          "sda": "PF12"
+        },
+        {
+          "scl": "PC4",
+          "sda": "PC5"
+        }
+      ],
+      "estop": "PE0"
+    },
+    "pcb_v1": {
+      "revision": "pcb_v1_layout_candidate",
+      "uart": {
+        "stm_tx": "PA2",
+        "stm_rx": "PA3",
+        "esp_tx": "GPIO17",
+        "esp_rx": "GPIO18"
+      },
+      "motor": [
+        {
+          "channel": 1,
+          "pwm": "PE9",
+          "in1": "PE8",
+          "in2": "PE7"
+        },
+        {
+          "channel": 2,
+          "pwm": "PE11",
+          "in1": "PE10",
+          "in2": "PE12"
+        },
+        {
+          "channel": 3,
+          "pwm": "PE13",
+          "in1": "PE15",
+          "in2": "PD9"
+        },
+        {
+          "channel": 4,
+          "pwm": "PE14",
+          "in1": "PD8",
+          "in2": "PD10"
+        }
+      ],
+      "tof": [
+        {
+          "scl": "PC0",
+          "sda": "PC1"
+        },
+        {
+          "scl": "PD11",
+          "sda": "PD12"
+        },
+        {
+          "scl": "PC4",
+          "sda": "PC5"
+        }
+      ],
+      "estop": "PE0"
+    },
+    "pcb_v2": {
+      "revision": "pcb_v42_upper_active_high_20261120",
+      "uart": {
+        "stm_tx": "PA2",
+        "stm_rx": "PA3",
+        "esp_tx": "GPIO17",
+        "esp_rx": "GPIO18"
+      },
+      "motor": [
+        {
+          "channel": 1,
+          "pwm": "PE9",
+          "in1": "PE8",
+          "in2": "PE7"
+        },
+        {
+          "channel": 2,
+          "pwm": "PE11",
+          "in1": "PE10",
+          "in2": "PE12"
+        },
+        {
+          "channel": 3,
+          "pwm": "PE13",
+          "in1": "PE15",
+          "in2": "PD9"
+        },
+        {
+          "channel": 4,
+          "pwm": "PE14",
+          "in1": "PD8",
+          "in2": "PD10"
+        }
+      ],
+      "tof": [
+        {
+          "scl": "PC0",
+          "sda": "PC1"
+        },
+        {
+          "scl": "PD11",
+          "sda": "PD12"
+        },
+        {
+          "scl": "PC4",
+          "sda": "PC5"
+        }
+      ],
+      "estop": "PE0",
+      "actuators": {
+        "step_pulse": "PC6",
+        "step_direction": "PC7",
+        "step_enable": "PG6",
+        "servo": "PB6",
+        "irf": [
+          "PA4",
+          "PG12",
+          "PA5",
+          "PD13"
+        ],
+        "limit_low": "PB7",
+        "limit_high": "PB4",
+        "step_signal_interface": "NPN sinks, common-anode +5V; ENA polarity must match purchased driver",
+        "servo_pin_order": [
+          "I/O",
+          "5V",
+          "GND"
+        ],
+        "irf_trigger_polarity": "active_high; user confirmed 2026-11-20; CH1=mixer, CH2=pump; boot/stop/timeout=LOW"
+      }
+    }
+  },
+  "pcb_v2_status": "prototype upper/USB/ToF test; not bench validated"
+}

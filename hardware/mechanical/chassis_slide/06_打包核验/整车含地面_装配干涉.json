@@ -1,0 +1,16 @@
+{
+  "status": "pass",
+  "interference_count": 0,
+  "items": [],
+  "severity": "none",
+  "manual_review_required": true,
+  "options": {
+    "treat_subassemblies_as_components": false,
+    "treat_coincidence_as_interference": false,
+    "ignore_hidden_bodies": false,
+    "show_ignored_interferences": true,
+    "include_multibody_part_interferences": false
+  },
+  "errors": [],
+  "max_volume_mm3": null
+}

@@ -1,0 +1,31 @@
+* text=auto
+*.md text eol=lf
+*.py text eol=lf
+*.c text eol=lf
+*.h text eol=lf
+*.cpp text eol=lf
+*.ino text eol=lf
+*.html text eol=lf
+*.mjs text eol=lf
+*.json text eol=lf
+*.eprj3 -text
+*.epcb2 -text
+*.esch2 -text
+*.ecfg -text
+*.SLDPRT binary
+*.SLDASM binary
+*.sldprt binary
+*.sldasm binary
+*.STL binary
+*.stl binary
+*.png binary
+*.pdf binary
+*.zip binary
+*.xlsx binary
+
+# Preserve native CAD and the raw-byte pinmap fingerprint across checkouts.
+*.STEP -text -diff
+*.step -text -diff
+*.STP -text -diff
+*.stp -text -diff
+firmware/board_profiles/pinmaps.json -text

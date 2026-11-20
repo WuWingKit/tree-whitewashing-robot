@@ -31,11 +31,11 @@ el('upload').onclick=async()=>{
   const data=await request('/api/ota/prepare',{method:'POST',body:new URLSearchParams({target:m.target,size:m.size,sha256:m.sha256,standalone:el('standalone').checked?'1':'0'})});
   session=data.token;message('正在确认停车…');
   let ready=false;
-  for(let i=0;i<20;i++){
+  for(let i=0;i<45;i++){
    await new Promise(r=>setTimeout(r,200));const s=await request('/api/ota/status');
    if(s.error)throw Error(s.error);if(s.ready){ready=true;break;}
   }
-  if(!ready)throw Error('未能确认停车，请检查两板通信或选择独立台架模式。');
+  if(!ready)throw Error('未能确认停车或相机停止，请检查两板通信和相机状态。');
   message(`正在上传 ${file.name}，请保持供电和Wi-Fi连接。`);
   await new Promise((resolve,reject)=>{
    const xhr=new XMLHttpRequest();xhr.open('POST','/api/ota/upload');xhr.setRequestHeader('X-OTA-Token',session);

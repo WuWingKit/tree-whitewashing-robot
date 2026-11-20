@@ -1,0 +1,6 @@
+{"type":"DOCHEAD"}||{"docType":"SCH","client":"dfb403c72c612e0e","uuid":"dd6af801145c25a3","updateTime":1794671339842,"version":"1794671339842","editVersion":"4.1.71","user":{"uuid":"bc6a46937bda48cebfbbfe12bd76daa7","nickname":"","username":""}}|
+{"type":"META","ticket":7206,"id":"META"}||{"title":"Controller_V2","source":"","board":"309777ae83bab083","zIndex":null}|
+{"type":"RULE","ticket":7532,"id":"[\"RULE\",\"TRACK\",\"copperThickness1oz\"]"}||{"ruleState":"DEFAULT","ruleContext":{"unit":"mm","track":{"isOpen":true,"content":[{"layerId":1,"stroDef":0.254,"stroMax":2.54,"stroMin":0.127}]}}}|
+{"type":"RULE","ticket":7533,"id":"[\"RULE\",\"TRACK\",\"copperThickness2oz\"]"}||{"ruleState":"NORMAL","ruleContext":{"unit":"mm","track":{"isOpen":true,"content":[{"layerId":1,"stroDef":0.254,"stroMax":2.54,"stroMin":0.203}]}}}|
+{"type":"DIFFERENTIAL_PAIR","id":"[\"DIFFERENTIAL_PAIR\",\"CAM_USB1\"]","ticket":10001}||{"positiveNet":"USB1_DP","negativeNet":"USB1_DM"}|
+{"type":"DIFFERENTIAL_PAIR","id":"[\"DIFFERENTIAL_PAIR\",\"CAM_USB2\"]","ticket":10002}||{"positiveNet":"USB2_DP","negativeNet":"USB2_DM"}|

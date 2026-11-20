@@ -1,69 +1,67 @@
 # 树木涂白机器人
 
-面向城市道路沿线树木的侧置环抱式涂白机器人。当前以自建缩比场景验证定位、环抱、升降与喷涂流程，后续再评估实际道路适用性。
+侧置环抱式树木涂白机器人项目。STM32F407负责本地执行控制与三路TOF，ESP32-S3负责Wi-Fi、USB相机与板间通信，电脑网页用于当前阶段的人工联调。
 
-> **阶段快照：2026-11-05。** 已完成总体方案讨论并采购底盘、控制与部分感知部件；其余执行部件仍在选型。尚未完成整机装配和闭环作业验证。2026-11-08新增底盘无线遥控测试代码，验证范围见测试记录。本文中的设计值、商品参数和实测结果分别标注，不能把已采购理解为已经验证可用。
+**当前整理快照：2026-11-21。** 固件为`0.4.0-upper-usb-tof`，现板配置为`pcb_v2`，PCB为V4.2四层版。两端程序已编译并通过主机测试；这份新固件尚未烧入设备，USB相机、TOF、泵与搅拌电机的本轮实物联调尚待进行。此前2026-11-09/10旧版本的UART/OTA实测记录保留，不能替代本轮验证。
 
-## 底盘遥控测试（2026-11-08新增）
+## 从这里开始
 
-已提供[电脑浏览器→S3→F407→TB6612测试程序](firmware/remote_control/README.md)和[完整接线表](firmware/remote_control/WIRING.md)，含前进、后退、左右转向及超时停车。当前是开环台架测试版，尚未上车验证；不包含喷涂与自动避障。
+|任务|入口|
+|---|---|
+|接线、刷两端程序、测试泵/搅拌/相机/TOF|[现板联合测试说明](firmware/remote_control/BENCH_TEST_20261120.md)|
+|STM32源码|[main.c](firmware/remote_control/stm32/App/main.c)、[TOF驱动](firmware/remote_control/stm32/App/tof.c)|
+|ESP32源码和网页|[RemoteControl](firmware/remote_control/esp32/RemoteControl/)、[ESP-IDF构建入口](firmware/remote_control/esp32/idf/)|
+|GPIO唯一配置|[pinmaps.json](firmware/board_profiles/pinmaps.json)、[pcb_v2接线](firmware/board_profiles/WIRING_PCB_V2.md)|
+|当前PCB、制板和BOM|[PCB版本导航](hardware/pcb/README.md)|
+|SolidWorks、STEP和打印STL|[机械模型导航](hardware/mechanical/README.md)|
+|本轮测试记录|[固件测试](firmware/remote_control/TEST_REPORT_20261120.md)、[机器可读结果](firmware/remote_control/validation/20261120/results.json)|
+|变更与设计决策|[CHANGELOG](CHANGELOG.md)、[决策记录](docs/10-decisions.md)|
 
-## 网页OTA与实机调试（2026-11-09）
+## 已实现的联调功能
 
-ESP32现已支持[密码保护的网页OTA](firmware/remote_control/OTA.md)，并完成[真实Wi-Fi升级、错误包拒绝、上传中断和两板UART测试](firmware/remote_control/HARDWARE_TEST_20261109.md)。STM32 OTA仍待实现，速度上限保持初版设置。
-
-## 当前方案
-
-- 双层四驱差速底盘，普通轮；下层放电池和控制板，上层布置搅拌容器及待选泵。
-- 升降立柱固定在底盘下层的**侧面**，滑动平台通过固定长度连接件连接双半环夹爪，不使用水平伸缩机构。
-- 双半环由单舵机和一对齿轮同步开合；夹爪内径100 mm、外径140 mm、高50 mm，计划安装6个喷嘴。
-- STM32F407ZGT6负责本地运动控制与联锁；单块ESP32-S3 N16R8负责无线通信、相机采集转发和STM32通信。
-- 前向90°、作业端70°两台720P USB相机；3只TOF050C分别用于树干近距测量与作业范围两侧检测。相机与测距数据送电脑处理，电脑下发作业指令。
-- 双相机以**按作业阶段分时采集**作为初始设计。单块S3接Hub的兼容性、实际分辨率和帧率尚待验证。
+- 四驱差速底盘网页开环遥控，保留启用会话、停止、超时停车和OTA维护锁。
+- 搅拌器CH1=PA4、水泵CH2=PG12，网页独立开关，**高电平通电、低电平关闭**；STM32返回GPIO输出指令状态。CH3/4预留，固定关闭。
+- 三只TOF050C/VL6180X分别使用独立软件I²C：PC0/PC1、PD11/PD12、PC4/PC5；错误与过期读数单独标记。
+- USB相机经外置Hub接ESP32-S3；支持枚举诊断、MJPEG预览及两台相机分时切换。每路PCB的J_HUB四针仍需手动接到Hub对应下行口，板上USB母座不构成Hub。
+- ESP32网页OTA保留，维护时关闭底盘、上装和相机；STM32 OTA、滑台/夹爪自动动作、整机自动作业与视觉定位闭环尚未实现。
 
 ```mermaid
 flowchart LR
-  PC[电脑：视觉与任务规划] <-->|Wi-Fi：图像 / 状态 / 指令| S3[ESP32-S3 N16R8]
-  CAM[前向与作业端 USB 相机] --> HUB[USB Hub] --> S3
-  S3 <-->|3.3V UART| MCU[STM32F407ZGT6]
-  TOF[3只 TOF050C] --> MCU
-  ENC[4轮编码器] --> MCU
-  MCU --> TB[酷点四路TB6612] --> WHEEL[差速底盘电机]
-  MCU --> ACT[滑台驱动 / 舵机 / 泵与搅拌驱动]
-  SAFE[急停 / 限位 / 到位反馈] --> MCU
+  PC[电脑网页] <-->|Wi-Fi| ESP[ESP32-S3]
+  CAM[USB相机] --> PORT[PCB USB母座 / J_HUB四线] --> HUB[外置USB Hub] -->|原生USB/OTG| ESP
+  ESP <-->|UART / CRC16| STM[STM32F407]
+  TOF[三路TOF] --> STM
+  STM --> MD04[外置四驱TB6612] --> WHEELS[底盘电机]
+  STM -->|PA4 / PG12| POWER[上层电源板信号转接] --> IRF[外置IRF540模块] --> LOAD[搅拌电机 / 水泵]
 ```
 
-TOF接入方式、急停和执行驱动等仍待补齐；上图为设计连接关系，不是已经完成的接线图。
+网页热点：`TreeRobotTest`，测试密码`TreeTest2026`。控制页`http://192.168.4.1/`，相机/测距页`/sensors`，升级页`/update`。设备独立OTA密码由本地构建配置生成，不在仓库中。切换窗口会使控制页停止并锁定。
 
-![侧置升降与环抱装置的现有CAD截图](hardware/images/side_assembly.png)
+## 构建与验证
 
-## 文档导航
+```powershell
+python firmware/board_profiles/generate.py --check
+python firmware/remote_control/tools/test_core.py
+node firmware/remote_control/tests/test_web.mjs
+python firmware/remote_control/tools/build_stm32.py --profile pcb_v2
+python firmware/remote_control/tools/build_integrated.py --profile pcb_v2
+```
 
-|文档|内容|
-|---|---|
-|[背景与需求](docs/01-requirements.md)|作业场景、缩比范围、指标与边界|
-|[机械结构](docs/02-mechanical.md)|双层布置、侧置滑台、环抱与喷涂、打印细节|
-|[电气与供电](docs/03-power.md)|电池、驱动板5.3V警告、负载与配电|
-|[控制与网络](docs/04-control-network.md)|F407/S3/电脑分工、双相机和无线验证|
-|[感知与定位](docs/05-perception.md)|前方树干距离估计、障碍检测、涂白效果|
-|[通信与固件设计](docs/06-protocol.md)|命令、状态机、超时、OTA规划|
-|[资源与引脚草案](docs/07-resources.md)|定时器、串口、引脚冲突与扩展|
-|[测试与里程碑](docs/08-validation.md)|到货检查、分系统到整机的验收步骤|
-|[采购明细](docs/09-procurement.md)|已下单14条明细，合计703.70元；待采购清单|
-|[决策与风险](docs/10-decisions.md)|方案演变、尚未解决的问题|
-|[资料来源](docs/references.md)|厂商资料索引与官方技术依据|
-|[早期汇报](reports/2026-11-03/README.md)|历史PPT，不能替代当前设计|
+STM32使用本地Keil ARM Compiler 5和ST HAL/CMSIS；USB整合版使用ESP-IDF5.4.2、Arduino3.2.1组件和固定的UVC源码。工具链路径可通过脚本参数指定，第三方SDK需要按[来源记录](firmware/sensor_test/SOURCES.md)准备。首次构建会生成网页头文件、公共代码副本和本地OTA配置。构建不自动烧录。
 
-## 目前最需要验证的事项
+编译后STM32文件位于`firmware/remote_control/stm32/build/pcb_v2/`，ESP32文件位于`firmware/remote_control/esp32/build/integrated/pcb_v2/`，烧录地址见联合测试说明。预编译固件含设备本地OTA配置，保留在本地交付包，本次不上传公开仓库。
 
-1. 实购酷点驱动板注意事项称外接“5V”输出约5.3V，并警告不可直接接外设芯片5V脚。必须核实实物、电路版本和目标板输入规格，不能沿用其他品牌板的供电结论。
-2. 用户提供的电机参数表含3.5A堵转电流，超过TB6612芯片相应峰值条件；实购电机需核对型号和实测启动负载，不能依靠接口匹配判断驱动匹配。
-3. S3原生USB为Full Speed。两台USB相机、Hub、主机供电及软件驱动需要实机验证；不承诺两路720P/30fps同时传输。
-4. 单个侧向测距值是到树皮表面的距离，不是树干中心距离；前向单目图像也不能在未知尺寸时直接给出绝对距离。
-5. 侧悬机构的重量、偏载、夹爪打开后的通行包络，以及非横移底盘的入位/离位轨迹，尚未验证。
+## 目录
 
-## 文件范围与授权
+```text
+firmware/                 两端程序、网页、公共协议、测试与构建脚本
+hardware/pcb/             当前V4.2原生工程、生产文件、BOM与预览
+hardware/mechanical/      当前机械交付的整理副本
+docs/                    需求、电气、控制、感知、采购与设计工具说明
+software/                后续上位机规划
+reports/                 已公开的阶段汇报索引
+```
 
-本仓库发布设计说明、脱敏采购清单和现有设计截图；新增底盘遥控测试源码与构建方法；整机自动作业固件和视觉上位机尚未完成。原始订单、账号、地址、支付记录、完整厂商软件包和安装程序不公开。商品价格仅记录本次采购，不代表现价。
+详细设计：[需求](docs/01-requirements.md) · [机械](docs/02-mechanical.md) · [供电](docs/03-power.md) · [控制网络](docs/04-control-network.md) · [感知](docs/05-perception.md) · [协议规划](docs/06-protocol.md) · [验证](docs/08-validation.md)。历史文档按日期保留；现板实际针序和程序行为以本页所链的联合测试说明与`pcb_v2`为准。
 
-公开仓库不等于已选择开源许可证；当前暂未指定项目许可证。第三方图片和资料归原权利人所有，见[来源说明](THIRD_PARTY.md)。
+公开内容包括项目源码、自建CAD/打印模型、当前PCB工程与可公开BOM。原始订单、设备凭据、厂商完整资料、安装程序、SDK、构建缓存及旧版大备份留在本地。本次整理不删除原目录，不新增实物验证结论。项目尚未指定开源许可证，第三方资料说明见[THIRD_PARTY](THIRD_PARTY.md)。

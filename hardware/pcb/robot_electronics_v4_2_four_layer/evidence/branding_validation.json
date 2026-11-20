@@ -1,0 +1,89 @@
+{
+  "native_cold_reopen": true,
+  "boards": {
+    "controller": {
+      "drc_violations": 0,
+      "copper_layers": 4,
+      "components": 85,
+      "pins": 497,
+      "model_bindings": 85,
+      "preserved_records": {
+        "LINE": 2205,
+        "VIA": 134,
+        "PAD": 4,
+        "PAD_NET": 497,
+        "POLY": 9,
+        "REGION": 22,
+        "POUR": 4,
+        "LAYER_PHYS": 13,
+        "LAYER": 62,
+        "COMPONENT": 85,
+        "ATTR": 1100,
+        "NET": 161
+      },
+      "alignment_mm": {
+        "icon": {
+          "x": 40.30000002,
+          "y": 30.100000100000003,
+          "w": 7.7926641199999995,
+          "h": 8.500000779999999
+        },
+        "studio": {
+          "x": 48.94266244,
+          "y": 30.100000100000003,
+          "w": 18.019565179999997,
+          "h": 3.54166678
+        },
+        "url": {
+          "x": 48.94266244,
+          "y": 36.120833880000006,
+          "w": 18.019565179999997,
+          "h": 2.479167
+        }
+      },
+      "font_independent_images": 4
+    },
+    "power": {
+      "drc_violations": 0,
+      "copper_layers": 4,
+      "components": 42,
+      "pins": 111,
+      "model_bindings": 42,
+      "preserved_records": {
+        "LINE": 338,
+        "VIA": 34,
+        "PAD": 8,
+        "PAD_NET": 111,
+        "POLY": 1,
+        "REGION": 32,
+        "POUR": 4,
+        "LAYER_PHYS": 13,
+        "LAYER": 62,
+        "COMPONENT": 42,
+        "ATTR": 541,
+        "NET": 26
+      },
+      "alignment_mm": {
+        "icon": {
+          "x": 2.99999908,
+          "y": 53.00000002,
+          "w": 11.001405479999999,
+          "h": 11.99999886
+        },
+        "studio": {
+          "x": 15.201407239999998,
+          "y": 53.00000002,
+          "w": 25.43938524,
+          "h": 5.00000016
+        },
+        "url": {
+          "x": 15.201407239999998,
+          "y": 61.5000008,
+          "w": 25.43938524,
+          "h": 3.50000062
+        }
+      },
+      "font_independent_images": 4
+    }
+  }
+}

@@ -73,4 +73,63 @@ static void reverse_tests(void) {
     rc_control_tick(&c,401);assert(c.output[0]==10);
     puts("PASS reverse: ramp to zero, 100ms dwell, immediate zero then reversed start");
 }
-int main(void) {protocol_tests();control_tests();reverse_tests();puts("All core tests passed.");return 0;}
+static void sensor_frame_tests(void) {
+    rc_control_t c;rc_parser_t parser={0};rc_frame_t in,out;
+    uint8_t bytes[RC_FRAME_SIZE];unsigned id,i;
+    rc_control_init(&c,0);arm(&c,0);
+    for(id=0;id<3;id++) {
+        in.type=(uint8_t)(0x90u+id);in.seq=65535;
+        in.left=id==0?42:-1;in.right=id==0?0:256;
+        rc_encode(bytes,&in);
+        for(i=0;i<RC_FRAME_SIZE;i++) {
+            int ready=rc_feed(&parser,bytes[i],&out);
+            assert(ready==(i==RC_FRAME_SIZE-1));
+        }
+        assert(out.type==in.type && out.seq==in.seq && out.left==in.left && out.right==in.right);
+        assert(!rc_control_command(&c,&out,100));
+        assert(c.armed && !c.output[0] && !c.output[1] && c.last_drive==0);
+    }
+    rc_control_tick(&c,300);assert(!c.armed);
+    puts("PASS sensors: three IDs, valid/invalid CRC frames, telemetry cannot command motors or refresh drive lease");
+}
+static void upper_tests(void) {
+    rc_control_t c;rc_frame_t f;unsigned mask;
+    rc_control_init(&c,0);assert(!c.upper_output);
+    f=frame(RC_UPPER,3,0);assert(!rc_control_command(&c,&f,0));
+    arm(&c,0);
+    for(mask=0;mask<=3;mask++) {
+        f=frame(RC_UPPER,(int)mask,0);f.seq=(uint16_t)(100+mask);
+        assert(rc_control_command(&c,&f,10+mask));assert(c.upper_output==mask);
+    }
+    assert(!rc_control_command(&c,&f,20));assert(c.last_upper==13); /* duplicate */
+    f.seq=90;assert(!rc_control_command(&c,&f,21)); /* out of order */
+    f=frame(RC_UPPER,4,0);assert(!rc_control_command(&c,&f,22));
+    f=frame(RC_UPPER,-1,0);assert(!rc_control_command(&c,&f,23));
+    f=frame(RC_UPPER,1,1);assert(!rc_control_command(&c,&f,24));
+    /* STOP applies to pumps and chassis. ARM never restores a previous mask. */
+    f=frame(RC_STOP,0,0);assert(rc_control_command(&c,&f,25));assert(!c.upper_output);
+    arm(&c,30);assert(!c.upper_output);
+    f=frame(RC_UPPER,3,0);assert(rc_control_command(&c,&f,31));
+    rc_control_estop(&c,1,32);assert(!c.upper_output && !c.armed);
+    assert(!rc_control_command(&c,&f,33));rc_control_estop(&c,0,34);
+    /* Drive heartbeats alone cannot keep an old pump command alive. */
+    arm(&c,1000);f=frame(RC_UPPER,3,0);assert(rc_control_command(&c,&f,1001));
+    f=frame(RC_DRIVE,0,0);assert(rc_control_command(&c,&f,1200));
+    rc_control_tick(&c,1301);assert(!c.upper_output && !c.armed);
+    f=frame(RC_UPPER,3,0);f.seq=43;assert(!rc_control_command(&c,&f,1302));
+    /* The inverse: upper packets do not renew the drive/session watchdog. */
+    arm(&c,2000);f=frame(RC_UPPER,3,0);assert(rc_control_command(&c,&f,2200));
+    f.seq++;assert(!rc_control_command(&c,&f,2300));assert(!c.upper_output);
+    /* Reject a late upper heartbeat even before the regular tick runs. */
+    arm(&c,3000);f=frame(RC_UPPER,1,0);assert(rc_control_command(&c,&f,3001));
+    f=frame(RC_DRIVE,0,0);assert(rc_control_command(&c,&f,3200));
+    f=frame(RC_UPPER,2,0);f.seq=43;assert(!rc_control_command(&c,&f,3301));
+    assert(!c.armed && !c.upper_output);
+    /* UART sequence rollover and millisecond rollover remain valid. */
+    rc_control_init(&c,0xffffff80u);arm(&c,0xffffff80u);
+    f=frame(RC_UPPER,1,0);f.seq=65535;assert(rc_control_command(&c,&f,0xffffff81u));
+    f.seq=0;f.left=2;assert(rc_control_command(&c,&f,0xffffff82u));
+    rc_control_tick(&c,0xacu);assert(!c.upper_output && !c.armed);
+    puts("PASS upper: CH1/CH2 masks, invalid payload, duplicate/old frames, boot/arm/stop/estop, independent leases, stale command and rollover");
+}
+int main(void) {protocol_tests();control_tests();reverse_tests();sensor_frame_tests();upper_tests();puts("All core tests passed.");return 0;}

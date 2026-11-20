@@ -1,5 +1,90 @@
 # 变更记录
 
+## 2026-11-21：整理当前版本并同步GitHub
+
+- 首页改为当前版本导航，明确V4.2 PCB、pcb_v2固件、机械交付副本与验证边界。
+- 收录当前四层原生工程、Gerber、BOM/针号、品牌丝印和内层预览；旧PCB与大型过程缓存保留本地。
+- 新增hardware/mechanical统一索引，原样收录当前底盘滑台、通用相机壳、TOF背板、驱动底托及前部短支架。
+- 完善忽略规则；设备凭据、含本地OTA配置的编译固件、订单原件、第三方SDK与安装包不进入公开仓库。
+
+## 2026-11-20：泵/搅拌器、USB相机与三路TOF联合测试
+
+- 两端配套版本0.4.0-upper-usb-tof：CH1=PA4搅拌器、CH2=PG12水泵，高电平有效，网页独立开关。
+- 新增UART上装命令/输出报告，启动关闭、双心跳超时、停止/急停/OTA联锁与不自动恢复行为。
+- 保留三路TOF、底盘遥控及USB相机；增加枚举诊断和现板四针USB/八针上装接线说明。
+- 两端编译、共享C、网页和OTA镜像测试通过；未烧录本轮新程序，实物外设联调待完成。
+
+## 2026-11-17：物料编码按公用/单独分开编号
+
+- 把原 M01–M47 单一序列拆成三组：**G01–G08 公用**、**C01–C22 控制板专用**、**P01–P17 电源板专用**。
+- 新文件：`release/bom/MATERIAL_CODES_V2.md`、`MATERIAL_CODES_V2.csv`、`MATERIAL_CODE_LIST_V2.txt`，以及按位号查编码的 `REF_TO_CODE_控制板_V2.csv`（81 行）、`REF_TO_CODE_电源板_V2.csv`（41 行）。
+- 原 M 码与合同序号保留为对照列，对账不受影响。
+
+## 2026-11-15：按订单合同分配物料编码
+
+- 解析立创订单合同 SO2611153726（47 行），物料编码按合同序号编为 **M01–M47**。
+- 输出 `release/bom/MATERIAL_CODES.md`（共用 8 项 / 控制板专用 22 项 / 电源板专用 17 项）与 `MATERIAL_CODES.csv`（含每板用量与位号）。
+- 另出按位号查编码的 `REF_TO_CODE_控制板.csv`（81 行）、`REF_TO_CODE_电源板.csv`（41 行）。
+- 合同 47 行全部命中两板 BOM，无多余无缺项；控制板 30 种/81 点，电源板 25 种/41 点。
+
+## 2026-11-15：导出 V4.2 BOM
+
+- 用官方 API（`pcb_ManufactureData.getBomFile`）从工程直接导出两板 BOM，输出到 `hardware/pcb/robot_electronics_v4_2_four_layer/release/bom/`。
+- 控制板 30 行 / 81 件，电源板 25 行 / 41 件，合计 122 件，与 `BOM.csv` 的 FIT 122 / DNP 5 一致；DNP 元件（R22–R25、电源板 R7）自动排除。
+- 同时输出 xlsx（嘉立创 BOM 模板）、UTF-8 副本，以及两板合并采购表（47 种 / 122 件）。
+- 修复：R1–R6 除 `DNP` 外还带 `Add into BOM=no`，只改 DNP 时 BOM 仍不显示；两处属性一起改为 yes 后 BOM 才包含这 6 只上拉电阻。
+
+## 2026-11-15：叠层顺序写入工程与制板包
+
+- 两块 PCB 的**文档层（Document Layer 13）**写入完整叠层表与 USB 阻抗说明，随 Gerber 导出到 `Gerber_DocumentLayer.GDL`（控制板 GDL 5.8 KB → 80.2 KB，电源板 → 80.7 KB）。
+- 两个制板 zip 内新增 `叠层顺序.txt`（中文），下单与审核可直接看到。
+- 新增 [`STACKUP.md`](hardware/pcb/robot_electronics_v4_2_four_layer/STACKUP.md)，记录 JLC04161H-7628 的七层顺序、厚度、εr 与层号/Gerber 文件对应关系。
+- 重新导出两板 Gerber；改后 DRC 复跑仍为控制板 0、电源板 0。
+
+## 2026-11-15：按审查结论整改 V4.2
+
+- 固件：`build_stm32/build_integrated/build_esp32`（含 sensor_test）的 `--profile` 改为必填；`robot_pinmap.h` 在宏未定义时 `#error`，不再静默退回 legacy。四份固件文档同步更新。
+- 电路：ToF 六只 4.7 kΩ 上拉 R1–R6 由 DNP 改为贴装（原理图与 PCB 属性同步），BOM 变为 FIT 122 / DNP 5。
+- 丝印：电源板补 65×65 IRF540 模块外框与标注，重新导出 `power_V42_4Layer_Gerber.zip`。
+- 改后独立复跑 DRC：控制板 0 违规、电源板 0 违规。
+- 未完成：控制板 5V/舵机 5V 的保险与 TVS（需新增器件与布线，API 图元创建在本机不可用，留给 GUI 增量修改）；装配 PDF/PNG 已过期。
+
+## 2026-11-15：审核 V4.2 四层工程
+
+- 新增 `hardware/pcb/robot_electronics_v4_2_four_layer/REVIEW_20261115.md`。
+- 独立复核：用官方 CLI 重新打开并跑 DRC，两块板均 0 违规；四层（1/15/16/2）、内层 `L2_GND`/`L3_GND` 与 `L2_P_GND`/`L3_P_GND`、各 4 块整板铺铜。
+- 量测 USB：四根线各 17.006 mm、全在底层、无数据过孔、线宽 0.2642 mm、边距 0.1778 mm（7 mil）；90.46 Ω 来自嘉立创官方计算引擎且参数与叠层一致。
+- 修正 `WIRING.md` 中"电源板两层"的错误表述（实际两板均四层）。
+- 遗留：固件默认 profile 仍为 legacy；ToF 六只上拉 DNP 未说明；控制板 5V/舵机 5V 仍无保险；电源板缺 IRF 模块外框丝印。
+
+## 2026-11-14：控制板改为四层
+
+- 用官方 CLI 把 `robot_electronics_v4_1_bottom_ports` 的控制板从两层改为四层：L1 信号 / L2 GND 内电层(15) / L3 GND 内电层(16) / L4 信号，1.6 mm；走线未重布。
+- 原生 DRC 复跑 0 违规；导出 `release/controller_V41_4Layer_Gerber.zip`，含 `Gerber_InnerLayer1.G1`、`Gerber_InnerLayer2.G2`。
+- 电源板未能转换：其地网名为 `P_GND`，内电层只能绑定名为 `GND` 的网络，否则生成悬空铜皮，故回退为两层并记录做法。
+- 转换前的完整工程备份在 `hardware/pcb/_backup_v4_1_2layer_20261114/`；过程证据见 `evidence/v41-4layer-conversion.json`。旧的两层 Gerber 与装配图已标注过期。
+
+## 2026-11-14：V4.1 工程对照需求的审查
+
+- 新增 `hardware/pcb/robot_electronics_v4_1_bottom_ports/REVIEW_20261114.md`：按 16 项需求逐条判定，标注证据与缺口。
+- 关键发现：V4.1 为两块 100×100 两层（需求表所列 180×190/130×105/四层属 V2）；MD04 已按用户要求移出主控板；固件默认 profile 为 legacy；ToF 六只 4.7k 上拉 DNP 未文档化。
+- 用户当日确认 100×100 与 MD04 外挂，需求 7 板内安装部分作废；层数确认为两层，已同步 `docs/10-decisions.md`。
+- 仅新增审查文档，未改动 EDA 工程、Gerber、固件或接线配置。
+
+## 2026-11-14：补充设计工具、PCB准则与eprj3格式文档
+
+- 新增 `docs/12-jlceda-pro-desktop.md`：本机 4.1.71 的操作流程、设计规则四层结构、DRC、生产文件与官方 CLI。
+- 新增 `docs/13-pcb-layout-routing.md`：布局布线判据、嘉立创 DFM 能力、EMC/安规与审图清单，并写明本项目两层板的验证边界。
+- 新增 `hardware/pcb/EPRJ3_FORMAT_GUIDE.md` 与只读解析器 `hardware/pcb/eprj3_inspect.py`；解析器已在 V4 工程实测（板框 100×100、器件 85/42、网络 161/26）。
+- 仅新增文档与解析脚本，未修改任何 EDA 工程、Gerber、固件或接线配置。
+
+## 2026-11-13：记录载板修订与独立上装电源要求
+
+- 记录控制载板缩小、MD04电源插接留在车内和补齐模块3D的最新要求，覆盖早期边缘朝外/只做排针模型的指令。
+- 记录两组12V电池、上装独立配电、5264-3P舵机接口及待选的搅拌/水泵控制与滑台驱动模块。
+- 用户明确24V指滑台，评估独立电源模块12V升24V的功率条件；保留MD04约5.3V输出的验证要求。
+- 仅更新需求和技术评估文档；未修改EDA工程、Gerber、GPIO、接线配置或固件。
+
 ## 2026-11-09：ESP32网页OTA与硬件验证
 
 - 新增独立密码、维护会话、停车联锁、S3应用校验、SHA256、双槽激活和启动确认。
@@ -23,3 +108,13 @@
 - 按实购酷点附送资料记录5V接口约5.3V警告及原理图5V/3A标注，不沿用其他品牌电源结论。
 - 保留11月3日历史汇报，未将旧PPT当作当前采购或实现状态。
 - 尚无整机测试报告和自研固件/上位机交付。
+
+
+## 2026-11-13 电子V2
+
+新增180×190控制载板及130×105独立12V/24V电源板eprj3工程、Gerber/PDF/网表、本地3D模型与接线清单；同步pcb_v2程序引脚配置。两板冷启动DRC无错误，9个固件编译配置通过。未烧录或实物带载验证，见hardware/pcb/robot_electronics_v2/CHECKS.md。
+
+
+### 2026-11-13 嘉立创库三维模型补全
+
+控制/电源工程共114个器件关联模型：101处系统库、13处原有本地参考。新增45处缺失模型、替换34处标准接插件模型，并修复舵机旧模型关联。冷启动回读模型与114条清单一致，586焊盘和网络坐标不变；原布线、安装孔及铺铜边界未变。见hardware/pcb/robot_electronics_v2/STOCK_3D_BINDING.md。

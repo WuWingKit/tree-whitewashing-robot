@@ -1,0 +1,23 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>树木涂白机器人 · 传感器测试</title>
+<style>body{font:16px system-ui;max-width:1000px;margin:28px auto;padding:0 18px;background:#f2f6f5;color:#173a34}section{background:white;padding:18px;margin:16px 0;border-radius:12px}button,select{padding:9px;margin:5px}img{max-width:100%;min-height:80px}pre{white-space:pre-wrap}small{color:#52665f}</style>
+<h1>摄像头与测距模块测试</h1><p>本固件只采集传感器，持续发送停车指令。双摄像头接入后，选择一路采集并切换测试。</p>
+<section><h2>测距 · 毫米</h2><div id="tof">等待 STM32…</div><small>无效或超时显示“—”，不会用零值代替。测试从距目标 30–100 mm 开始。</small></section>
+<section><h2>USB 摄像头</h2><div id="cam"></div><button onclick="stop()">停止采集</button><p id="message"></p><img id="preview" alt="选择摄像头并开始后显示画面"><p id="imageState"></p><small>摄像头编号按枚举顺序分配；首次分别遮挡镜头确认前方/作业端。显示的是实时轮询 JPEG，非双路 720p 视频。</small></section>
+<section><h2>USB 线路测试</h2><p>PCB 的 USB 母座对应 J_HUB1/2 转接口；每路四根线接 Hub 同一路下行口的 5V、D−、D+、GND。Hub 上行口接 ESP32-S3 原生 USB/OTG，COM 口只用于烧录和日志。</p><pre id="usbState">等待 USB 主机诊断…</pre><small>先看到设备枚举，再选择 MJPEG 格式，最后确认帧数持续增加且图像随场景变化。控制器电源标志不代表已测得 USB 5V。</small></section>
+<section><h2>状态与诊断</h2><pre id="raw"></pre></section>
+<script>
+let selected=-1,loading=false,lastSignature='',lastOK=0;
+const $=id=>document.getElementById(id);
+async function start(id){let f=$('f'+id).value;try{let r=await fetch('/api/camera/select?id='+id+'&format='+f,{method:'POST'});$('message').textContent=await r.text();if(r.ok){selected=id;lastOK=0;}}catch(e){$('message').textContent=e.message}}
+async function stop(){selected=-1;await fetch('/api/camera/stop',{method:'POST'});$('preview').removeAttribute('src');$('imageState').textContent='已停止'}
+async function status(){try{let r=await fetch('/api/status',{cache:'no-store'});if(!r.ok)throw Error(r.status);let d=await r.json();
+$('tof').textContent=d.tof.map(x=>'ToF '+x.id+': '+(x.valid?x.mm+' mm':'—')+' [状态 '+x.status+']').join('　');
+if(d.usb){let u=d.usb;$('usbState').textContent=`USB 根端口：${u.root_connected?'已检测连接':'未检测连接'} / 枚举设备数：${u.enumerated_devices}\n`+u.devices.map(x=>`地址 ${x.address} · VID ${x.vid.toString(16)} / PID ${x.pid.toString(16)} · ${x.video_interface?'摄像头接口':x.hub_interface?'Hub':'其他设备'}`).join('\n');}else{$('usbState').textContent='当前固件未提供 USB 总线诊断';}
+let signature=JSON.stringify(d.cameras.map(x=>[x.id,x.present,x.usb_address,x.formats]));
+if(signature!==lastSignature){lastSignature=signature;$('cam').replaceChildren();for(let c of d.cameras){let row=document.createElement('div');row.append('摄像头 '+c.id+'：'+(c.present?'已连接':'未连接'));if(c.present){let select=document.createElement('select');select.id='f'+c.id;let best=0,bestArea=0;for(let f of c.formats){let o=document.createElement('option');o.value=f.index;o.textContent=f.width+'×'+f.height+' MJPEG（默认 '+f.default_fps.toFixed(1)+' fps）';select.append(o);let a=f.width*f.height;if(f.width<=640&&f.height<=480&&a>bestArea){best=f.index;bestArea=a}}select.value=best;row.append(select);let b=document.createElement('button');b.textContent='采集此路';b.disabled=!c.formats.length;b.onclick=()=>start(c.id);row.append(b)}$('cam').append(row)}}
+$('raw').textContent=JSON.stringify(d,null,2);
+}catch(e){$('raw').textContent='连接中断：'+e.message;$('tof').textContent='数据已过期';$('usbState').textContent='USB 状态已过期';}finally{setTimeout(status,500)}}
+async function image(){if(selected>=0&&!loading){loading=true;let controller=new AbortController(),timer=setTimeout(()=>controller.abort(),2500);try{let r=await fetch('http://'+location.hostname+':81/camera.jpg?id='+selected+'&t='+Date.now(),{signal:controller.signal,cache:'no-store'});if(!r.ok)throw Error(await r.text());let url=URL.createObjectURL(await r.blob()),old=$('preview').src;$('preview').src=url;if(old.startsWith('blob:'))URL.revokeObjectURL(old);lastOK=Date.now();$('imageState').textContent='新帧 · '+new Date(lastOK).toLocaleTimeString();}catch(e){$('imageState').textContent='暂无新帧：'+e.message;if(Date.now()-lastOK>2500)$('preview').removeAttribute('src');}finally{clearTimeout(timer);loading=false}}setTimeout(image,250)}
+status();image();
+</script></html>

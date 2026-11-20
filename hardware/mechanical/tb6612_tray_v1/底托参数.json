@@ -1,0 +1,87 @@
+{
+  "units": "mm",
+  "board_size": [
+    64,
+    64
+  ],
+  "hole_pitch": [
+    37,
+    37
+  ],
+  "centers": [
+    [
+      -18.5,
+      -18.5
+    ],
+    [
+      -18.5,
+      18.5
+    ],
+    [
+      18.5,
+      -18.5
+    ],
+    [
+      18.5,
+      18.5
+    ]
+  ],
+  "printed_hole_diameter": 3.6,
+  "outer": [
+    78,
+    78,
+    8
+  ],
+  "outer_corner_r": 3,
+  "cavity": [
+    74,
+    74
+  ],
+  "cavity_r": 1,
+  "floor_thickness": 3,
+  "rim_top_z": 7,
+  "post_diameter": 6,
+  "post_height": 5,
+  "pcb_back_z": 8,
+  "pcb_to_floor_gap": 5,
+  "pcb_side_gap": 5,
+  "windows": {
+    "left": {
+      "y": [
+        -25,
+        33
+      ]
+    },
+    "right": {
+      "y": [
+        -12,
+        33
+      ]
+    },
+    "upper": {
+      "x": [
+        -28,
+        28
+      ]
+    },
+    "lower": {
+      "x": [
+        -29,
+        20
+      ]
+    }
+  },
+  "window_z": [
+    3,
+    7
+  ],
+  "reference_only_assumptions": {
+    "pcb_thickness": 1.6,
+    "pcb_hole_diameter": 3.2
+  },
+  "physical_checks_needed": [
+    "PCB actual hole diameter",
+    "underside solder/component maximum height <=4.5 for at least 0.5 residual clearance",
+    "actual connectors and plugs in their full inserted state"
+  ]
+}

@@ -1,0 +1,193 @@
+{
+  "name": "RobotElectronicsV4_2_FourLayer",
+  "owner_uuid": "bc6a46937bda48cebfbbfe12bd76daa7",
+  "creator_uuid": "bc6a46937bda48cebfbbfe12bd76daa7",
+  "created_at": "2026-11-13 17:32:35",
+  "updated_at": "2026-11-13 17:32:35",
+  "modifier_uuid": "bc6a46937bda48cebfbbfe12bd76daa7",
+  "content": "V4.2: two 100x100 mm four-layer PCBs; explicit ground pours, antenna keepouts, JLC04161H-7628 stackup, corrected 90 ohm USB pairs",
+  "archive": false,
+  "cbb_project": 0,
+  "thumb": "",
+  "ticket": 1,
+  "g_ticket": 1,
+  "boards": [],
+  "block_symbol_attrs_groups": {},
+  "default_sheet": "e085d63868458cd9",
+  "branch_uuid": "c2e39fa1bfce99a6df486dd813ef2688",
+  "pcb_count": 2,
+  "format": "folder",
+  "profile": {
+    "boards": {
+      "309777ae83bab083": {
+        "uuid": "309777ae83bab083",
+        "title": "Controller_V2",
+        "zIndex": 1
+      },
+      "338dc9ee204014b9": {
+        "uuid": "338dc9ee204014b9",
+        "title": "Upper_Power_V2",
+        "zIndex": 2
+      }
+    },
+    "schematics": {
+      "dd6af801145c25a3": {
+        "uuid": "dd6af801145c25a3",
+        "name": "Controller_V2",
+        "board": "309777ae83bab083",
+        "source": "",
+        "version": "1794671339842",
+        "updateTime": 1794671339842
+      },
+      "6ed3d5c8f9aa9037": {
+        "uuid": "6ed3d5c8f9aa9037",
+        "name": "Upper_Power_V2",
+        "board": "338dc9ee204014b9",
+        "source": "",
+        "version": "1794645047747",
+        "updateTime": 1794645047747
+      }
+    },
+    "sheets": {
+      "81c4a6c3b30567b1": {
+        "uuid": "81c4a6c3b30567b1",
+        "title": "Actuators",
+        "schematic_uuid": "dd6af801145c25a3",
+        "zIndex": 6,
+        "source": "",
+        "version": "1794659348066",
+        "updateTime": 1794659348066
+      },
+      "e01368ca91e9a8b4": {
+        "uuid": "e01368ca91e9a8b4",
+        "title": "Chassis_ToF",
+        "schematic_uuid": "dd6af801145c25a3",
+        "zIndex": 3,
+        "source": "",
+        "version": "1794638326943",
+        "updateTime": 1794638326943
+      },
+      "41800d64dc23dc1e": {
+        "uuid": "41800d64dc23dc1e",
+        "title": "ESP32",
+        "schematic_uuid": "dd6af801145c25a3",
+        "zIndex": 2,
+        "source": "",
+        "version": "1794638326943",
+        "updateTime": 1794638326943
+      },
+      "073c1575d19a3c0e": {
+        "uuid": "073c1575d19a3c0e",
+        "title": "Interfaces",
+        "schematic_uuid": "dd6af801145c25a3",
+        "zIndex": 7,
+        "source": "",
+        "version": "1794638326943",
+        "updateTime": 1794638326943
+      },
+      "7800bdee21e708ce": {
+        "uuid": "7800bdee21e708ce",
+        "title": "Power",
+        "schematic_uuid": "dd6af801145c25a3",
+        "zIndex": 4,
+        "source": "",
+        "version": "1794644905040",
+        "updateTime": 1794644905040
+      },
+      "e085d63868458cd9": {
+        "uuid": "e085d63868458cd9",
+        "title": "STM32",
+        "schematic_uuid": "dd6af801145c25a3",
+        "zIndex": 1,
+        "source": "",
+        "version": "1794638326943",
+        "updateTime": 1794638326943
+      },
+      "48a5c16fc871a909": {
+        "uuid": "48a5c16fc871a909",
+        "title": "USB_Cameras",
+        "schematic_uuid": "dd6af801145c25a3",
+        "zIndex": 5,
+        "source": "",
+        "version": "1794638326943",
+        "updateTime": 1794638326943
+      },
+      "5d0d72791276ff4d": {
+        "uuid": "5d0d72791276ff4d",
+        "title": "Boost_24V",
+        "schematic_uuid": "6ed3d5c8f9aa9037",
+        "zIndex": 2,
+        "source": "",
+        "version": "1794638326943",
+        "updateTime": 1794638326943
+      },
+      "d5a2c95e5c4f8c50": {
+        "uuid": "d5a2c95e5c4f8c50",
+        "title": "Input_12V",
+        "schematic_uuid": "6ed3d5c8f9aa9037",
+        "zIndex": 1,
+        "source": "",
+        "version": "1794644939121",
+        "updateTime": 1794644939121
+      },
+      "fa1560eba8fe4409": {
+        "uuid": "fa1560eba8fe4409",
+        "title": "IRF_Interface",
+        "schematic_uuid": "6ed3d5c8f9aa9037",
+        "zIndex": 3,
+        "source": "",
+        "version": "1794644941075",
+        "updateTime": 1794644941075
+      }
+    },
+    "pcbs": {
+      "daeb45fb9d8aacfe": {
+        "uuid": "daeb45fb9d8aacfe",
+        "title": "Controller_V2",
+        "board": "309777ae83bab083",
+        "parent_uuid": "",
+        "source": "",
+        "version": "1794682861834",
+        "updateTime": 1794682861834
+      },
+      "4f7292ce085ce78c": {
+        "uuid": "4f7292ce085ce78c",
+        "title": "Upper_Power_V2",
+        "board": "338dc9ee204014b9",
+        "parent_uuid": "",
+        "source": "",
+        "version": "1794685307228",
+        "updateTime": 1794685307228
+      }
+    },
+    "panels": {},
+    "blockSymbols": {},
+    "owner": {
+      "uuid": "bc6a46937bda48cebfbbfe12bd76daa7"
+    },
+    "simSchematics": {},
+    "simulations": {}
+  },
+  "config": {
+    "defaultSheet": "e085d63868458cd9",
+    "settings": {
+      "UNIVERSAL": {
+        "dataType": "UNIVERSAL",
+        "data": {
+          "allowLibRename": true,
+          "defaultNetName": true,
+          "wireMultipleNet": true,
+          "netFlagCrossLayerConnection": true,
+          "netLabelCrossPageConnection": true,
+          "busGenerateNetClass": true,
+          "relevanceDisplayRow": "SINGLE",
+          "relevanceBelongSchPage": "NAME",
+          "relevanceLocation": "ZONE",
+          "multipartCrossLayer": true,
+          "nonElectronicAddIntoBom": false,
+          "nonElectronicUpdatePcb": false
+        }
+      }
+    }
+  }
+}

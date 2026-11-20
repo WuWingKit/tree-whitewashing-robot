@@ -1,0 +1,216 @@
+{
+  "revision": "V4.2 FourLayer",
+  "size_unit": "mm",
+  "status": "native-verified four-layer prototype, cold reopened; both DRC 0",
+  "boards": {
+    "controller": {
+      "size": [
+        100,
+        100
+      ],
+      "copper_layers": 4,
+      "stackup": {
+        "name": "JLC04161H-7628",
+        "nominal_thickness_mm": 1.6,
+        "outer_copper_oz": 1,
+        "inner_copper_oz": 0.5,
+        "L1": "TOP signal",
+        "L2": "ground pour",
+        "L3": "ground pour",
+        "L4": "BOTTOM signal"
+      },
+      "chassis_origin": [
+        -47,
+        78.9904
+      ],
+      "mounts": [
+        {
+          "source": {
+            "pdf_curve": 175,
+            "pdf_centre_pt": [
+              781.8499999999999,
+              703.3000000000001
+            ],
+            "chassis_mm": [
+              18.4856,
+              107.4914
+            ],
+            "diameter_from_vector_mm": 3.5101,
+            "excluded_motor_group": false,
+            "excluded_motor_projection": false
+          },
+          "pcb_xy_mm": [
+            65.4856,
+            28.501000000000005
+          ]
+        },
+        {
+          "source": {
+            "pdf_curve": 150,
+            "pdf_centre_pt": [
+              814.4499999999999,
+              625.35
+            ],
+            "chassis_mm": [
+              29.9861,
+              134.9904
+            ],
+            "diameter_from_vector_mm": 3.9864,
+            "excluded_motor_group": false,
+            "excluded_motor_projection": false
+          },
+          "pcb_xy_mm": [
+            76.9861,
+            56.0
+          ]
+        },
+        {
+          "source": {
+            "pdf_curve": 149,
+            "pdf_centre_pt": [
+              644.4,
+              511.95000000000005
+            ],
+            "chassis_mm": [
+              -30.0038,
+              174.9954
+            ],
+            "diameter_from_vector_mm": 4.004,
+            "excluded_motor_group": false,
+            "excluded_motor_projection": false
+          },
+          "pcb_xy_mm": [
+            16.9962,
+            96.005
+          ]
+        },
+        {
+          "source": {
+            "pdf_curve": 148,
+            "pdf_centre_pt": [
+              814.4499999999999,
+              511.95000000000005
+            ],
+            "chassis_mm": [
+              29.9861,
+              174.9954
+            ],
+            "diameter_from_vector_mm": 3.9864,
+            "excluded_motor_group": false,
+            "excluded_motor_projection": false
+          },
+          "pcb_xy_mm": [
+            76.9861,
+            96.005
+          ]
+        }
+      ],
+      "underside_recommended_clearance_mm": 25,
+      "STM32_left_overhang_mm": 8.5,
+      "TB6612": "external vehicle mounting; cable interface only"
+    },
+    "power": {
+      "size": [
+        100,
+        100
+      ],
+      "copper_layers": 4,
+      "IRF_module": "65x65 module on 15mm spacers, adjustable screw slots",
+      "input": "DC 5.5x2.1 center-positive and screw terminal with individual fuses and diode OR",
+      "stackup": {
+        "name": "JLC04161H-7628",
+        "nominal_thickness_mm": 1.6,
+        "outer_copper_oz": 1,
+        "inner_copper_oz": 0.5,
+        "L1": "TOP signal",
+        "L2": "ground pour",
+        "L3": "ground pour",
+        "L4": "BOTTOM signal"
+      }
+    }
+  },
+  "passive_indicators": {
+    "controller": [
+      "5V ON",
+      "3V3 ON"
+    ],
+    "power": [
+      "12V ON",
+      "24V OUT (presence only, not voltage threshold detector)"
+    ]
+  },
+  "firmware_gpio_changes": {
+    "profile": "pcb_v2",
+    "limit_high": {
+      "old": "PB8",
+      "new": "PB4"
+    },
+    "irf": {
+      "old": [
+        "PG0",
+        "PG1",
+        "PG2",
+        "PG3"
+      ],
+      "new": [
+        "PA4",
+        "PG12",
+        "PA5",
+        "PD13"
+      ]
+    }
+  },
+  "components": 127,
+  "pads": 608,
+  "purchase_skus": 48,
+  "warnings": [
+    "Load current and thermal performance not certified; user deferred load current specification.",
+    "USB coupled cross-section verified with official calculator; no physical USB eye-diagram or throughput test.",
+    "24V output may remain near input voltage when boost disabled."
+  ],
+  "interface_function_table": "INTERFACE_FUNCTIONS.csv",
+  "bottom_port_groups": 16,
+  "four_layer_stackup": {
+    "name": "JLC04161H-7628",
+    "nominal_thickness_mm": 1.6,
+    "order": [
+      1,
+      361,
+      15,
+      362,
+      16,
+      363,
+      2
+    ],
+    "thicknesses_mm": [
+      0.035,
+      0.2104,
+      0.0152,
+      1.065,
+      0.0152,
+      0.2104,
+      0.035
+    ],
+    "inner_net": {
+      "controller": "GND",
+      "power": "P_GND"
+    },
+    "source": "https://jlcpcb.com/impedance",
+    "usb": {
+      "target_ohm": 90,
+      "calculated_ohm": 90.4624081212,
+      "width_mil": 10.4,
+      "edge_spacing_mil": 7,
+      "reference_layer": 16
+    }
+  },
+  "validated_date": "2026-11-15",
+  "branding": {
+    "controller_front": "BOTTOM, opposite development-board insertion face",
+    "power_front": "TOP",
+    "icon_and_right_two_line_text_block": "equal height, aligned top and bottom",
+    "url_and_chinese_row": "equal width, aligned left and right",
+    "native_vector_assets": "branding/native_objects.json",
+    "validation": "evidence/branding_validation.json"
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "source_chassis": "E:\\WorkSpace\\树木涂白机器人\\硬件资料\\(D305)酷点机器人-4WD四驱底盘\\SolidWorks2020_双层底盘\\D305_双层四驱底盘_总高119mm.STEP",
+  "source_sha256": "17fd682300b232133a4c2abe4f07bd9d32e4a2af06f41940f80081650c695212",
+  "chassis_solids": 90,
+  "new_acrylic_holes": 4,
+  "hits": [],
+  "ground_plane_y_mm": 0,
+  "motor_orientation": "up",
+  "slide_box_mm": [
+    -15.00002222244454,
+    55.99997777755556,
+    7.999977777555558,
+    15.000022222444342,
+    334.00002222244433,
+    44.00002222244445
+  ],
+  "clearance_mm": {
+    "slide_lower_end": 56,
+    "lower_C_bottom": 46,
+    "lower_M4_nut_bottom": 41.8,
+    "lower_M4_screw_tip": 40,
+    "new_assembly_minimum": 40
+  },
+  "stage_hole_rows_original_x": [
+    -160,
+    -60
+  ],
+  "stage_hole_heights_mm": [
+    80,
+    180
+  ],
+  "slide_source_to_local_transform": {
+    "rotation": [
+      0,
+      1,
+      0,
+      -1,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    "translation_mm": [
+      50.25,
+      240,
+      38.5
+    ]
+  },
+  "range_checks": [
+    {
+      "plate_top_pitch_mm": 55,
+      "stage_bottom_mm": 52.75,
+      "lower_mount_bottom_mm": 46,
+      "lower_M4_screw_tip_mm": 40,
+      "minimum_added_clearance_mm": 40
+    },
+    {
+      "plate_top_pitch_mm": 61.5,
+      "stage_bottom_mm": 56.0,
+      "lower_mount_bottom_mm": 46,
+      "lower_M4_screw_tip_mm": 40,
+      "minimum_added_clearance_mm": 40
+    },
+    {
+      "plate_top_pitch_mm": 75,
+      "stage_bottom_mm": 62.75,
+      "lower_mount_bottom_mm": 46,
+      "lower_M4_screw_tip_mm": 40,
+      "minimum_added_clearance_mm": 40
+    }
+  ],
+  "scope": "原119mm整车的平整地面静态检查；离地间隙随实车下板高度和轮胎压缩改变，未验证坡坎或动态倾斜"
+}

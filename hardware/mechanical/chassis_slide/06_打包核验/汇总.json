@@ -1,0 +1,223 @@
+[
+  {
+    "assembly": "01_整车加滑台_总装\\01_整车加滑台_电机朝上.SLDASM",
+    "components": 37,
+    "unique_native_parts": 12,
+    "packed_files": 14,
+    "all_component_paths_inside_package": true,
+    "all_saved_dependencies_inside_package": true,
+    "saved_reopened": true,
+    "component_transforms_unchanged": true,
+    "source_files_unchanged": true,
+    "references": [
+      "01_整车加滑台_总装\\总装_V2_01_下层C型座_加筋.SLDPRT",
+      "01_整车加滑台_总装\\总装_V2_02_上层C型座_加筋.SLDPRT",
+      "01_整车加滑台_总装\\总装_V2_03_车板间隙垫片_0.5mm.SLDPRT",
+      "01_整车加滑台_总装\\总装_V2_GX28_200_SW2020.SLDPRT",
+      "01_整车加滑台_总装\\总装_V2_M3x16_参考.SLDPRT",
+      "01_整车加滑台_总装\\总装_V2_M3垫圈_参考.SLDPRT",
+      "01_整车加滑台_总装\\总装_V2_M3螺母_包络参考.SLDPRT",
+      "01_整车加滑台_总装\\总装_V2_M4x25_参考.SLDPRT",
+      "01_整车加滑台_总装\\总装_V2_M4垫圈_参考.SLDPRT",
+      "01_整车加滑台_总装\\总装_V2_M4螺母_包络参考.SLDPRT",
+      "01_整车加滑台_总装\\总装_原整车90实体_新增钻孔_SW2020.SLDPRT",
+      "01_整车加滑台_总装\\总装_地面基准_不打印.SLDPRT"
+    ],
+    "replacements": [
+      {
+        "parent": "01_整车加滑台_总装\\01_整车加滑台_电机朝上.SLDASM",
+        "source_reference": "C:\\Users\\small\\.codex\\worktrees\\acee\\树木涂白机器人\\hardware\\slide_mount\\GX28_C型固定座_V2_电机朝上_整车验证\\参考\\原整车90实体_新增钻孔_SW2020.SLDPRT",
+        "packed_reference": "01_整车加滑台_总装\\总装_原整车90实体_新增钻孔_SW2020.SLDPRT",
+        "success": true,
+        "method": "ReplaceReferencedDocument"
+      },
+      {
+        "parent": "01_整车加滑台_总装\\01_整车加滑台_电机朝上.SLDASM",
+        "source_reference": "C:\\Users\\small\\.codex\\worktrees\\acee\\树木涂白机器人\\hardware\\slide_mount\\GX28_C型固定座_V2_电机朝上_整车验证\\参考\\V2_GX28_200_SW2020.SLDPRT",
+        "packed_reference": "01_整车加滑台_总装\\总装_V2_GX28_200_SW2020.SLDPRT",
+        "success": true,
+        "method": "ReplaceReferencedDocument"
+      },
+      {
+        "parent": "01_整车加滑台_总装\\01_整车加滑台_电机朝上.SLDASM",
+        "source_reference": "C:\\Users\\small\\.codex\\worktrees\\acee\\树木涂白机器人\\hardware\\slide_mount\\GX28_C型固定座_V2_电机朝上_整车验证\\零件\\V2_01_下层C型座_加筋.SLDPRT",
+        "packed_reference": "01_整车加滑台_总装\\总装_V2_01_下层C型座_加筋.SLDPRT",
+        "success": true,
+        "method": "ReplaceReferencedDocument"
+      },
+      {
+        "parent": "01_整车加滑台_总装\\01_整车加滑台_电机朝上.SLDASM",
+        "source_reference": "C:\\Users\\small\\.codex\\worktrees\\acee\\树木涂白机器人\\hardware\\slide_mount\\GX28_C型固定座_V2_电机朝上_整车验证\\零件\\V2_03_车板间隙垫片_0.5mm.SLDPRT",
+        "packed_reference": "01_整车加滑台_总装\\总装_V2_03_车板间隙垫片_0.5mm.SLDPRT",
+        "success": true,
+        "method": "ReplaceReferencedDocument"
+      },
+      {
+        "parent": "01_整车加滑台_总装\\01_整车加滑台_电机朝上.SLDASM",
+        "source_reference": "C:\\Users\\small\\.codex\\worktrees\\acee\\树木涂白机器人\\hardware\\slide_mount\\GX28_C型固定座_V2_电机朝上_整车验证\\参考\\V2_M4x25_参考.SLDPRT",
+        "packed_reference": "01_整车加滑台_总装\\总装_V2_M4x25_参考.SLDPRT",
+        "success": true,
+        "method": "ReplaceReferencedDocument"
+      },
+      {
+        "parent": "01_整车加滑台_总装\\01_整车加滑台_电机朝上.SLDASM",
+        "source_reference": "C:\\Users\\small\\.codex\\worktrees\\acee\\树木涂白机器人\\hardware\\slide_mount\\GX28_C型固定座_V2_电机朝上_整车验证\\参考\\V2_M4垫圈_参考.SLDPRT",
+        "packed_reference": "01_整车加滑台_总装\\总装_V2_M4垫圈_参考.SLDPRT",
+        "success": true,
+        "method": "ReplaceReferencedDocument"
+      },
+      {
+        "parent": "01_整车加滑台_总装\\01_整车加滑台_电机朝上.SLDASM",
+        "source_reference": "C:\\Users\\small\\.codex\\worktrees\\acee\\树木涂白机器人\\hardware\\slide_mount\\GX28_C型固定座_V2_电机朝上_整车验证\\参考\\V2_M4螺母_包络参考.SLDPRT",
+        "packed_reference": "01_整车加滑台_总装\\总装_V2_M4螺母_包络参考.SLDPRT",
+        "success": true,
+        "method": "ReplaceReferencedDocument"
+      },
+      {
+        "parent": "01_整车加滑台_总装\\01_整车加滑台_电机朝上.SLDASM",
+        "source_reference": "C:\\Users\\small\\.codex\\worktrees\\acee\\树木涂白机器人\\hardware\\slide_mount\\GX28_C型固定座_V2_电机朝上_整车验证\\零件\\V2_02_上层C型座_加筋.SLDPRT",
+        "packed_reference": "01_整车加滑台_总装\\总装_V2_02_上层C型座_加筋.SLDPRT",
+        "success": true,
+        "method": "ReplaceReferencedDocument"
+      },
+      {
+        "parent": "01_整车加滑台_总装\\01_整车加滑台_电机朝上.SLDASM",
+        "source_reference": "C:\\Users\\small\\.codex\\worktrees\\acee\\树木涂白机器人\\hardware\\slide_mount\\GX28_C型固定座_V2_电机朝上_整车验证\\参考\\V2_M3x16_参考.SLDPRT",
+        "packed_reference": "01_整车加滑台_总装\\总装_V2_M3x16_参考.SLDPRT",
+        "success": true,
+        "method": "ReplaceReferencedDocument"
+      },
+      {
+        "parent": "01_整车加滑台_总装\\01_整车加滑台_电机朝上.SLDASM",
+        "source_reference": "C:\\Users\\small\\.codex\\worktrees\\acee\\树木涂白机器人\\hardware\\slide_mount\\GX28_C型固定座_V2_电机朝上_整车验证\\参考\\V2_M3垫圈_参考.SLDPRT",
+        "packed_reference": "01_整车加滑台_总装\\总装_V2_M3垫圈_参考.SLDPRT",
+        "success": true,
+        "method": "ReplaceReferencedDocument"
+      },
+      {
+        "parent": "01_整车加滑台_总装\\01_整车加滑台_电机朝上.SLDASM",
+        "source_reference": "C:\\Users\\small\\.codex\\worktrees\\acee\\树木涂白机器人\\hardware\\slide_mount\\GX28_C型固定座_V2_电机朝上_整车验证\\参考\\V2_M3螺母_包络参考.SLDPRT",
+        "packed_reference": "01_整车加滑台_总装\\总装_V2_M3螺母_包络参考.SLDPRT",
+        "success": true,
+        "method": "ReplaceReferencedDocument"
+      },
+      {
+        "parent": "01_整车加滑台_总装\\01_整车加滑台_电机朝上.SLDASM",
+        "source_reference": "C:\\Users\\small\\.codex\\worktrees\\acee\\树木涂白机器人\\hardware\\slide_mount\\GX28_C型固定座_V2_电机朝上_整车验证\\参考\\地面基准_不打印.SLDPRT",
+        "packed_reference": "01_整车加滑台_总装\\总装_地面基准_不打印.SLDPRT",
+        "success": true,
+        "method": "ReplaceReferencedDocument"
+      },
+      {
+        "parent": "01_整车加滑台_总装\\总装_V2_GX28_200_SW2020.SLDPRT",
+        "source_reference": "C:\\Users\\small\\.codex\\worktrees\\acee\\树木涂白机器人\\hardware\\slide_mount\\GX28_C型固定座_V2_电机朝上_整车验证\\参考\\GX28_200.stp",
+        "packed_reference": "01_整车加滑台_总装\\总装_GX28_200.stp",
+        "success": true,
+        "method": "IFeature.BreakLink_on_package_copy_preserve_bodies"
+      }
+    ]
+  },
+  {
+    "assembly": "02_底盘各零件及装配\\02_D305四柱底盘_分件装配.SLDASM",
+    "components": 90,
+    "unique_native_parts": 11,
+    "packed_files": 12,
+    "all_component_paths_inside_package": true,
+    "all_saved_dependencies_inside_package": true,
+    "saved_reopened": true,
+    "component_transforms_unchanged": true,
+    "source_files_unchanged": true,
+    "references": [
+      "02_底盘各零件及装配\\底盘_305底板_5mm亚克力.SLDPRT",
+      "02_底盘各零件及装配\\底盘_520电机安装支架.SLDPRT",
+      "02_底盘各零件及装配\\底盘_520编码器电机_按尺寸图重建.SLDPRT",
+      "02_底盘各零件及装配\\底盘_65mm橡胶轮胎.SLDPRT",
+      "02_底盘各零件及装配\\底盘_65mm轮毂.SLDPRT",
+      "02_底盘各零件及装配\\底盘_65mm轮毂联轴器_6mm轴孔.SLDPRT",
+      "02_底盘各零件及装配\\底盘_M3x12螺钉_简化.SLDPRT",
+      "02_底盘各零件及装配\\底盘_M3x6螺钉_简化.SLDPRT",
+      "02_底盘各零件及装配\\底盘_M3六角螺母_简化.SLDPRT",
+      "02_底盘各零件及装配\\底盘_M3平垫圈.SLDPRT",
+      "02_底盘各零件及装配\\底盘_双公头支撑柱_M3_56.5_下13上9.SLDPRT"
+    ],
+    "replacements": [
+      {
+        "parent": "02_底盘各零件及装配\\02_D305四柱底盘_分件装配.SLDASM",
+        "source_reference": "E:\\WorkSpace\\树木涂白机器人\\硬件资料\\(D305)酷点机器人-4WD四驱底盘\\SolidWorks2020_双层底盘\\零件\\305底板_5mm亚克力.SLDPRT",
+        "packed_reference": "02_底盘各零件及装配\\底盘_305底板_5mm亚克力.SLDPRT",
+        "success": true,
+        "method": "ReplaceReferencedDocument"
+      },
+      {
+        "parent": "02_底盘各零件及装配\\02_D305四柱底盘_分件装配.SLDASM",
+        "source_reference": "E:\\WorkSpace\\树木涂白机器人\\硬件资料\\(D305)酷点机器人-4WD四驱底盘\\SolidWorks2020_双层底盘\\零件\\520电机安装支架.SLDPRT",
+        "packed_reference": "02_底盘各零件及装配\\底盘_520电机安装支架.SLDPRT",
+        "success": true,
+        "method": "ReplaceReferencedDocument"
+      },
+      {
+        "parent": "02_底盘各零件及装配\\02_D305四柱底盘_分件装配.SLDASM",
+        "source_reference": "E:\\WorkSpace\\树木涂白机器人\\硬件资料\\(D305)酷点机器人-4WD四驱底盘\\SolidWorks2020_双层底盘\\零件\\520编码器电机_按尺寸图重建.SLDPRT",
+        "packed_reference": "02_底盘各零件及装配\\底盘_520编码器电机_按尺寸图重建.SLDPRT",
+        "success": true,
+        "method": "ReplaceReferencedDocument"
+      },
+      {
+        "parent": "02_底盘各零件及装配\\02_D305四柱底盘_分件装配.SLDASM",
+        "source_reference": "E:\\WorkSpace\\树木涂白机器人\\硬件资料\\(D305)酷点机器人-4WD四驱底盘\\SolidWorks2020_双层底盘\\零件\\65mm橡胶轮胎.SLDPRT",
+        "packed_reference": "02_底盘各零件及装配\\底盘_65mm橡胶轮胎.SLDPRT",
+        "success": true,
+        "method": "ReplaceReferencedDocument"
+      },
+      {
+        "parent": "02_底盘各零件及装配\\02_D305四柱底盘_分件装配.SLDASM",
+        "source_reference": "E:\\WorkSpace\\树木涂白机器人\\硬件资料\\(D305)酷点机器人-4WD四驱底盘\\SolidWorks2020_双层底盘\\零件\\65mm轮毂.SLDPRT",
+        "packed_reference": "02_底盘各零件及装配\\底盘_65mm轮毂.SLDPRT",
+        "success": true,
+        "method": "ReplaceReferencedDocument"
+      },
+      {
+        "parent": "02_底盘各零件及装配\\02_D305四柱底盘_分件装配.SLDASM",
+        "source_reference": "E:\\WorkSpace\\树木涂白机器人\\硬件资料\\(D305)酷点机器人-4WD四驱底盘\\SolidWorks2020_双层底盘\\零件\\65mm轮毂联轴器_6mm轴孔.SLDPRT",
+        "packed_reference": "02_底盘各零件及装配\\底盘_65mm轮毂联轴器_6mm轴孔.SLDPRT",
+        "success": true,
+        "method": "ReplaceReferencedDocument"
+      },
+      {
+        "parent": "02_底盘各零件及装配\\02_D305四柱底盘_分件装配.SLDASM",
+        "source_reference": "E:\\WorkSpace\\树木涂白机器人\\硬件资料\\(D305)酷点机器人-4WD四驱底盘\\SolidWorks2020_双层底盘\\零件\\M3平垫圈.SLDPRT",
+        "packed_reference": "02_底盘各零件及装配\\底盘_M3平垫圈.SLDPRT",
+        "success": true,
+        "method": "ReplaceReferencedDocument"
+      },
+      {
+        "parent": "02_底盘各零件及装配\\02_D305四柱底盘_分件装配.SLDASM",
+        "source_reference": "E:\\WorkSpace\\树木涂白机器人\\硬件资料\\(D305)酷点机器人-4WD四驱底盘\\SolidWorks2020_双层底盘\\零件\\M3六角螺母_简化.SLDPRT",
+        "packed_reference": "02_底盘各零件及装配\\底盘_M3六角螺母_简化.SLDPRT",
+        "success": true,
+        "method": "ReplaceReferencedDocument"
+      },
+      {
+        "parent": "02_底盘各零件及装配\\02_D305四柱底盘_分件装配.SLDASM",
+        "source_reference": "E:\\WorkSpace\\树木涂白机器人\\硬件资料\\(D305)酷点机器人-4WD四驱底盘\\SolidWorks2020_双层底盘\\零件\\M3x12螺钉_简化.SLDPRT",
+        "packed_reference": "02_底盘各零件及装配\\底盘_M3x12螺钉_简化.SLDPRT",
+        "success": true,
+        "method": "ReplaceReferencedDocument"
+      },
+      {
+        "parent": "02_底盘各零件及装配\\02_D305四柱底盘_分件装配.SLDASM",
+        "source_reference": "E:\\WorkSpace\\树木涂白机器人\\硬件资料\\(D305)酷点机器人-4WD四驱底盘\\SolidWorks2020_双层底盘\\零件\\M3x6螺钉_简化.SLDPRT",
+        "packed_reference": "02_底盘各零件及装配\\底盘_M3x6螺钉_简化.SLDPRT",
+        "success": true,
+        "method": "ReplaceReferencedDocument"
+      },
+      {
+        "parent": "02_底盘各零件及装配\\02_D305四柱底盘_分件装配.SLDASM",
+        "source_reference": "E:\\WorkSpace\\树木涂白机器人\\硬件资料\\(D305)酷点机器人-4WD四驱底盘\\SolidWorks2020_双层底盘\\零件\\双公头支撑柱_M3_56.5_下13上9.SLDPRT",
+        "packed_reference": "02_底盘各零件及装配\\底盘_双公头支撑柱_M3_56.5_下13上9.SLDPRT",
+        "success": true,
+        "method": "ReplaceReferencedDocument"
+      }
+    ]
+  }
+]

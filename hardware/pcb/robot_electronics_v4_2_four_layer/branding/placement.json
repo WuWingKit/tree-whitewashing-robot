@@ -1,0 +1,235 @@
+{
+  "revision": "V4.2 matched branding",
+  "viewing_rule": "controller front = BOTTOM, opposite MCU sockets; power front = TOP",
+  "boards": [
+    {
+      "key": "controller",
+      "records": [
+        {
+          "kind": "modified_text",
+          "id": "24173ab2a0cd942d",
+          "text": "5V输入(仅5V)"
+        },
+        {
+          "kind": "icon",
+          "id": "d49260b1e30546d5",
+          "x": 40.3,
+          "y": 30.1,
+          "w": 7.792662921757634,
+          "h": 8.5,
+          "layer": 4
+        },
+        {
+          "kind": "outlined_text",
+          "id": "53bf2483e89b5520",
+          "text": "树木涂白机器人主控底板",
+          "x": 42,
+          "y": 14.1,
+          "h": 2,
+          "font": "SimHei",
+          "layer": 4,
+          "replacedTextId": "56d086872fd873f5",
+          "w": 22.849549350774215
+        },
+        {
+          "kind": "text",
+          "id": "0df3d9ddde0e5318",
+          "text": "WHITEWASHING ROBOT CONTROL PCB",
+          "x": 42,
+          "y": 17.7,
+          "h": 1.15,
+          "layer": 4
+        },
+        {
+          "kind": "text",
+          "id": "165084250035e485",
+          "text": "QB-RC42  REV4.2  4L",
+          "x": 42,
+          "y": 20.5,
+          "h": 1.1,
+          "layer": 4
+        },
+        {
+          "kind": "text",
+          "id": "1e8af9d0031c1f69",
+          "text": "2026-11",
+          "x": 61,
+          "y": 20.5,
+          "h": 1.1,
+          "layer": 4
+        },
+        {
+          "kind": "outlined_text",
+          "id": "d1a9f31edd5952e9",
+          "text": "千板工作室",
+          "x": 48.94266292175763,
+          "y": 30.1,
+          "h": 3.5416666666666665,
+          "font": "SimHei",
+          "layer": 4,
+          "replacedTextId": "48112c7312b7973b",
+          "w": 18.019565331271057
+        },
+        {
+          "kind": "outlined_text",
+          "id": "387b12151ffacb89",
+          "text": "qianban.online",
+          "x": 48.94266292175763,
+          "y": 36.12083333333334,
+          "h": 2.4791666666666665,
+          "layer": 4,
+          "w": 18.019565331271057,
+          "replacedTextId": "94f83f3db9d61049"
+        },
+        {
+          "kind": "text",
+          "id": "a50fa19744469bcb",
+          "text": "SN: ______________",
+          "x": 44,
+          "y": 54.1,
+          "h": 1.15,
+          "layer": 4
+        },
+        {
+          "kind": "text",
+          "id": "da7843dc630d7b31",
+          "text": "QC: [  ]",
+          "x": 73,
+          "y": 54.1,
+          "h": 1.15,
+          "layer": 4
+        },
+        {
+          "kind": "text",
+          "id": "0712f21f15c281b2",
+          "text": "FRONT / I/O SIDE",
+          "x": 41,
+          "y": 56.2,
+          "h": 1.1,
+          "layer": 4
+        }
+      ]
+    },
+    {
+      "key": "power",
+      "records": [
+        {
+          "kind": "icon",
+          "id": "3e99eaa009e86960",
+          "x": 3,
+          "y": 53,
+          "w": 11.001406477775483,
+          "h": 12,
+          "layer": 3
+        },
+        {
+          "kind": "outlined_text",
+          "id": "9b4128b516570661",
+          "text": "树木涂白机器人电源板",
+          "x": 3,
+          "y": 43.5,
+          "h": 2.1,
+          "font": "SimHei",
+          "layer": 3,
+          "replacedTextId": "3eb96b9f993a363e",
+          "w": 21.93099901607568
+        },
+        {
+          "kind": "text",
+          "id": "ced364047dd57cde",
+          "text": "WHITEWASHING ROBOT",
+          "x": 3,
+          "y": 47.2,
+          "h": 1.25,
+          "layer": 3
+        },
+        {
+          "kind": "text",
+          "id": "d4cf34389eed1227",
+          "text": "POWER DISTRIBUTION PCB",
+          "x": 3,
+          "y": 49.7,
+          "h": 1.25,
+          "layer": 3
+        },
+        {
+          "kind": "outlined_text",
+          "id": "70ac4e26475e332a",
+          "text": "千板工作室",
+          "x": 15.201406477775482,
+          "y": 53,
+          "h": 5,
+          "font": "SimHei",
+          "layer": 3,
+          "replacedTextId": "6b13efd31ce9dd5a",
+          "w": 25.43938635002973
+        },
+        {
+          "kind": "outlined_text",
+          "id": "98fe84130358be48",
+          "text": "qianban.online",
+          "x": 15.201406477775482,
+          "y": 61.5,
+          "h": 3.5,
+          "layer": 3,
+          "w": 25.43938635002973,
+          "replacedTextId": "541c6300b133da59"
+        },
+        {
+          "kind": "text",
+          "id": "03740f6527fd4ab5",
+          "text": "QB-PD42  REV4.2  4L",
+          "x": 3,
+          "y": 69,
+          "h": 1.2,
+          "layer": 3
+        },
+        {
+          "kind": "text",
+          "id": "169936847e07d2bc",
+          "text": "2026-11",
+          "x": 3,
+          "y": 71.8,
+          "h": 1.1,
+          "layer": 3
+        },
+        {
+          "kind": "text",
+          "id": "976697e04d92aeb9",
+          "text": "SN: ____________",
+          "x": 3,
+          "y": 76,
+          "h": 1.15,
+          "layer": 3
+        },
+        {
+          "kind": "text",
+          "id": "5ea1541720826a60",
+          "text": "QC: [  ]",
+          "x": 3,
+          "y": 80,
+          "h": 1.15,
+          "layer": 3
+        },
+        {
+          "kind": "text",
+          "id": "8e566b99f4698415",
+          "text": "12V INPUT ONLY",
+          "x": 2,
+          "y": 26.2,
+          "h": 1.1,
+          "layer": 3
+        },
+        {
+          "kind": "text",
+          "id": "c00e8795c8853e21",
+          "text": "12V / 24V: SELECT ONE",
+          "x": 59,
+          "y": 26.8,
+          "h": 1.1,
+          "layer": 3
+        }
+      ]
+    }
+  ]
+}

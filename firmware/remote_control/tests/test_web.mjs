@@ -11,7 +11,8 @@ const element=id=>{
  return elements.get(id);
 };
 const buttons=[...'qweasd'].map(key=>({...element('key-'+key),dataset:{key},setPointerCapture(){}}));
-let status={online:true,armed:false,estop:false,owner:false,left:0,right:0};
+let status={online:true,armed:false,estop:false,owner:false,left:0,right:0,
+ upper:{available:true,mixer_output:false,pump_output:false}};
 let rejectDrive=false,delayedArm=null;
 const context=vm.createContext({
  document:{getElementById:element,querySelectorAll:()=>buttons,hidden:false,
@@ -41,6 +42,17 @@ await element('arm').onclick();assert.equal(run('token'),1234);
 assert.equal(requests.filter(r=>r.path==='/api/drive').at(-1).body.left,'0');
 events.keydown(key('w'));assert.equal(run('held'),''); // wait for STM32 armed status
 await run('poll()');
+assert.equal(element('mixer').disabled,false);
+element('mixer').onclick();await settle();
+assert.equal(requests.at(-1).body.mixer,'1');assert.equal(requests.at(-1).body.pump,'0');
+element('pump').onclick();await settle();
+assert.equal(requests.at(-1).body.mixer,'1');assert.equal(requests.at(-1).body.pump,'1');
+element('mixer').onclick();await settle();
+assert.equal(requests.at(-1).body.mixer,'0');assert.equal(requests.at(-1).body.pump,'1');
+status={...status,upper:{available:false}};await run('poll()');
+assert.equal(run('token'),0);assert.equal(run('wantPump'),false);assert.equal(element('pump').disabled,true);
+status={...status,upper:{available:true,mixer_output:false,pump_output:false}};
+await element('arm').onclick();await run('poll()');
 events.keydown(key('w'));await settle();
 assert.equal(requests.at(-1).body.left,'200');assert.equal(requests.at(-1).body.right,'200');
 events.keyup(key('w'));await settle();assert.equal(requests.at(-1).body.left,'0');
@@ -63,6 +75,10 @@ const pending=element('arm').onclick();await settle();events.blur();resolveArm()
 assert.equal(run('token'),0);
 assert.ok(buttons.every(b=>b.onpointercancel&&b.onlostpointercapture));
 console.log('PASS browser: unarmed inhibition, hold/release, OTA maintenance lock, turns, space, blur, network failure, cancelled arm');
+console.log('PASS upper page: independent on/off requests, no auto-resume after lost firmware feedback, controls inhibited before arm');
+const sensorHTML=fs.readFileSync(new URL('../../sensor_test/esp32/main/index.html',import.meta.url),'utf8');
+new vm.Script(sensorHTML.match(/<script>([\s\S]*?)<\/script>/)[1]);
+console.log('PASS camera/TOF page JavaScript syntax');
 const otaHTML=fs.readFileSync(new URL('../esp32/RemoteControl/ota.html',import.meta.url),'utf8');
 new vm.Script(otaHTML.match(/<script>([\s\S]*?)<\/script>/)[1]);
 console.log('PASS OTA page JavaScript syntax');

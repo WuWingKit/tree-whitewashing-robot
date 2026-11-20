@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.16)
+set(EXTRA_COMPONENT_DIRS "$ENV{TREE_ARDUINO_PATH}" "$ENV{TREE_UVC_PATH}")
+set(COMPONENTS main)
+include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+project(tree_robot_remote_control VERSION 0.4.0)

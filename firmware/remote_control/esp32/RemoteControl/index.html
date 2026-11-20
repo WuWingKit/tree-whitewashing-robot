@@ -1,11 +1,11 @@
 <!doctype html>
 <html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>树木涂白机器人 · 底盘测试</title>
+<title>树木涂白机器人 · 联合测试</title>
 <style>
 body{font-family:system-ui,sans-serif;max-width:720px;margin:30px auto;padding:18px;background:#f3f6fa;color:#17283b}button{padding:18px;font-size:18px;border:1px solid #a4b5c7;border-radius:9px;background:white;touch-action:none;user-select:none}button:disabled{opacity:.45}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}#stop{background:#b52236;color:white}#arm{background:#176455;color:white}pre{background:#fff;padding:14px;white-space:pre-wrap}input{width:65%}.held{background:#bdd8ff}small{display:block;line-height:1.7}
 </style>
-<h1>底盘遥控测试</h1>
-<p><a href="/update" target="_blank" rel="noopener">固件升级（OTA）</a> · 当前版本 <span id="version">正在读取</span></p>
+<h1>底盘与上装联合测试</h1>
+<p><a href="/update" target="_blank" rel="noopener">固件升级（OTA）</a> · <a href="/sensors" target="_blank" rel="noopener">摄像头与测距</a> · 当前版本 <span id="version">正在读取</span></p>
 <p>先架空车轮核对方向。点击“启用遥控”，按住按钮或键盘运动，松开即停止输出。</p>
 <button id="arm">启用遥控</button> <button id="stop">停止并锁定（空格）</button>
 <p>占空比：<strong id="percent">20</strong>% <input id="speed" type="range" min="10" max="30" value="20" step="1"></p>
@@ -13,15 +13,28 @@ body{font-family:system-ui,sans-serif;max-width:720px;margin:30px auto;padding:1
 <button data-key="q">左弧线 Q</button><button data-key="w">前进 W / ↑</button><button data-key="e">右弧线 E</button>
 <button data-key="a">原地左转 A / ←</button><button data-key="s">后退 S / ↓</button><button data-key="d">原地右转 D / →</button>
 </div>
+<section style="background:white;padding:16px;border-radius:9px">
+<h2>搅拌电机与水泵</h2>
+<p>先点击“启用遥控”，再选择需要通电的设备。开关为持续请求，停止、断联或升级会关闭。</p>
+<button id="mixer" disabled>开启搅拌电机</button> <button id="pump" disabled>开启水泵</button>
+<pre id="upperStatus">等待上装控制状态…</pre>
+<small>高电平通电、低电平断电。状态表示 STM32 输出指令，不是实际电流或转速反馈。</small>
+</section>
 <pre id="status">正在连接STM32状态…</pre>
 <small>仅用于受控场地的低速开环测试；显示的是PWM指令，不是实测车速或编码器反馈。断联后需要重新启用。按键不响应时先点击页面空白处；切换窗口会锁定遥控。</small>
 <script>
 'use strict';
 let token=0,seq=0,held='',busy=false,arming=false,generation=0,ready=false;
+let wantMixer=false,wantPump=false,upperAvailable=false;
 const byId=id=>document.getElementById(id);
 const buttons=[...document.querySelectorAll('[data-key]')];
 function clearHeld(){held='';buttons.forEach(b=>b.classList.remove('held'));}
-function lock(send=true){generation++;token=0;arming=false;ready=false;clearHeld();if(send)navigator.sendBeacon('/api/stop','');}
+function upperButtons(){
+ byId('mixer').textContent=wantMixer?'关闭搅拌电机':'开启搅拌电机';
+ byId('pump').textContent=wantPump?'关闭水泵':'开启水泵';
+ byId('mixer').disabled=byId('pump').disabled=!ready||!upperAvailable;
+}
+function lock(send=true){generation++;token=0;arming=false;ready=false;wantMixer=wantPump=false;clearHeld();upperButtons();if(send)navigator.sendBeacon('/api/stop','');}
 async function api(path,params){
  const abort=new AbortController(),timer=setTimeout(()=>abort.abort(),200);
  try{const res=await fetch(path,{method:'POST',body:new URLSearchParams(params),signal:abort.signal});
@@ -34,7 +47,7 @@ function drivePair(){
 async function tick(){
  if(!token||busy)return;
  busy=true;const session=token,[left,right]=drivePair();
- try{await api('/api/drive',{token:session,seq:++seq,left,right});}
+ try{await api('/api/drive',{token:session,seq:++seq,left,right,mixer:wantMixer?1:0,pump:wantPump?1:0});}
  catch(e){if(token===session){lock();byId('status').textContent='遥控已锁定：'+e.message;}}
  finally{busy=false;}
 }
@@ -45,6 +58,8 @@ byId('arm').onclick=async()=>{
  finally{if(attempt===generation)arming=false;}
 };
 byId('stop').onclick=()=>lock();
+byId('mixer').onclick=()=>{if(!ready||!upperAvailable)return;wantMixer=!wantMixer;upperButtons();tick();};
+byId('pump').onclick=()=>{if(!ready||!upperAvailable)return;wantPump=!wantPump;upperButtons();tick();};
 byId('speed').oninput=()=>byId('percent').textContent=byId('speed').value;
 function press(key){if(!token||!ready)return;clearHeld();held=key;buttons.filter(b=>b.dataset.key===key).forEach(b=>b.classList.add('held'));tick();}
 function release(){clearHeld();tick();}
@@ -74,6 +89,13 @@ async function poll(){
  if(token&&(!s.online||s.estop||!s.owner))lock();
  if(s.maintenance&&token)lock();
  ready=Boolean(token&&s.armed&&s.online&&!s.estop&&!s.maintenance);
+ upperAvailable=Boolean(s.online&&s.upper&&s.upper.available);
+ if(!upperAvailable&&(wantMixer||wantPump))lock();
+ upperButtons();
+ const u=s.upper,level=v=>v===null||v===undefined?'无新回报':v?'高电平 / 通电指令':'低电平 / 断电指令';
+ byId('upperStatus').textContent=upperAvailable?
+  `搅拌电机 CH1：${level(u.mixer_output)}\n水泵 CH2：${level(u.pump_output)}\n本页请求：搅拌${wantMixer?'开':'关'} / 水泵${wantPump?'开':'关'}`:
+  '上装控制未就绪：请检查 STM32 在线状态，并刷入配套 pcb_v2 程序';
  byId('version').textContent=s.version||'早期测试版';
  byId('arm').disabled=Boolean(s.maintenance);
  buttons.forEach(b=>b.disabled=!ready);

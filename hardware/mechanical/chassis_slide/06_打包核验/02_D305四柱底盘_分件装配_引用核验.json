@@ -1,0 +1,103 @@
+{
+  "assembly": "02_底盘各零件及装配\\02_D305四柱底盘_分件装配.SLDASM",
+  "components": 90,
+  "unique_native_parts": 11,
+  "packed_files": 12,
+  "all_component_paths_inside_package": true,
+  "all_saved_dependencies_inside_package": true,
+  "saved_reopened": true,
+  "component_transforms_unchanged": true,
+  "source_files_unchanged": true,
+  "references": [
+    "02_底盘各零件及装配\\底盘_305底板_5mm亚克力.SLDPRT",
+    "02_底盘各零件及装配\\底盘_520电机安装支架.SLDPRT",
+    "02_底盘各零件及装配\\底盘_520编码器电机_按尺寸图重建.SLDPRT",
+    "02_底盘各零件及装配\\底盘_65mm橡胶轮胎.SLDPRT",
+    "02_底盘各零件及装配\\底盘_65mm轮毂.SLDPRT",
+    "02_底盘各零件及装配\\底盘_65mm轮毂联轴器_6mm轴孔.SLDPRT",
+    "02_底盘各零件及装配\\底盘_M3x12螺钉_简化.SLDPRT",
+    "02_底盘各零件及装配\\底盘_M3x6螺钉_简化.SLDPRT",
+    "02_底盘各零件及装配\\底盘_M3六角螺母_简化.SLDPRT",
+    "02_底盘各零件及装配\\底盘_M3平垫圈.SLDPRT",
+    "02_底盘各零件及装配\\底盘_双公头支撑柱_M3_56.5_下13上9.SLDPRT"
+  ],
+  "replacements": [
+    {
+      "parent": "02_底盘各零件及装配\\02_D305四柱底盘_分件装配.SLDASM",
+      "source_reference": "E:\\WorkSpace\\树木涂白机器人\\硬件资料\\(D305)酷点机器人-4WD四驱底盘\\SolidWorks2020_双层底盘\\零件\\305底板_5mm亚克力.SLDPRT",
+      "packed_reference": "02_底盘各零件及装配\\底盘_305底板_5mm亚克力.SLDPRT",
+      "success": true,
+      "method": "ReplaceReferencedDocument"
+    },
+    {
+      "parent": "02_底盘各零件及装配\\02_D305四柱底盘_分件装配.SLDASM",
+      "source_reference": "E:\\WorkSpace\\树木涂白机器人\\硬件资料\\(D305)酷点机器人-4WD四驱底盘\\SolidWorks2020_双层底盘\\零件\\520电机安装支架.SLDPRT",
+      "packed_reference": "02_底盘各零件及装配\\底盘_520电机安装支架.SLDPRT",
+      "success": true,
+      "method": "ReplaceReferencedDocument"
+    },
+    {
+      "parent": "02_底盘各零件及装配\\02_D305四柱底盘_分件装配.SLDASM",
+      "source_reference": "E:\\WorkSpace\\树木涂白机器人\\硬件资料\\(D305)酷点机器人-4WD四驱底盘\\SolidWorks2020_双层底盘\\零件\\520编码器电机_按尺寸图重建.SLDPRT",
+      "packed_reference": "02_底盘各零件及装配\\底盘_520编码器电机_按尺寸图重建.SLDPRT",
+      "success": true,
+      "method": "ReplaceReferencedDocument"
+    },
+    {
+      "parent": "02_底盘各零件及装配\\02_D305四柱底盘_分件装配.SLDASM",
+      "source_reference": "E:\\WorkSpace\\树木涂白机器人\\硬件资料\\(D305)酷点机器人-4WD四驱底盘\\SolidWorks2020_双层底盘\\零件\\65mm橡胶轮胎.SLDPRT",
+      "packed_reference": "02_底盘各零件及装配\\底盘_65mm橡胶轮胎.SLDPRT",
+      "success": true,
+      "method": "ReplaceReferencedDocument"
+    },
+    {
+      "parent": "02_底盘各零件及装配\\02_D305四柱底盘_分件装配.SLDASM",
+      "source_reference": "E:\\WorkSpace\\树木涂白机器人\\硬件资料\\(D305)酷点机器人-4WD四驱底盘\\SolidWorks2020_双层底盘\\零件\\65mm轮毂.SLDPRT",
+      "packed_reference": "02_底盘各零件及装配\\底盘_65mm轮毂.SLDPRT",
+      "success": true,
+      "method": "ReplaceReferencedDocument"
+    },
+    {
+      "parent": "02_底盘各零件及装配\\02_D305四柱底盘_分件装配.SLDASM",
+      "source_reference": "E:\\WorkSpace\\树木涂白机器人\\硬件资料\\(D305)酷点机器人-4WD四驱底盘\\SolidWorks2020_双层底盘\\零件\\65mm轮毂联轴器_6mm轴孔.SLDPRT",
+      "packed_reference": "02_底盘各零件及装配\\底盘_65mm轮毂联轴器_6mm轴孔.SLDPRT",
+      "success": true,
+      "method": "ReplaceReferencedDocument"
+    },
+    {
+      "parent": "02_底盘各零件及装配\\02_D305四柱底盘_分件装配.SLDASM",
+      "source_reference": "E:\\WorkSpace\\树木涂白机器人\\硬件资料\\(D305)酷点机器人-4WD四驱底盘\\SolidWorks2020_双层底盘\\零件\\M3平垫圈.SLDPRT",
+      "packed_reference": "02_底盘各零件及装配\\底盘_M3平垫圈.SLDPRT",
+      "success": true,
+      "method": "ReplaceReferencedDocument"
+    },
+    {
+      "parent": "02_底盘各零件及装配\\02_D305四柱底盘_分件装配.SLDASM",
+      "source_reference": "E:\\WorkSpace\\树木涂白机器人\\硬件资料\\(D305)酷点机器人-4WD四驱底盘\\SolidWorks2020_双层底盘\\零件\\M3六角螺母_简化.SLDPRT",
+      "packed_reference": "02_底盘各零件及装配\\底盘_M3六角螺母_简化.SLDPRT",
+      "success": true,
+      "method": "ReplaceReferencedDocument"
+    },
+    {
+      "parent": "02_底盘各零件及装配\\02_D305四柱底盘_分件装配.SLDASM",
+      "source_reference": "E:\\WorkSpace\\树木涂白机器人\\硬件资料\\(D305)酷点机器人-4WD四驱底盘\\SolidWorks2020_双层底盘\\零件\\M3x12螺钉_简化.SLDPRT",
+      "packed_reference": "02_底盘各零件及装配\\底盘_M3x12螺钉_简化.SLDPRT",
+      "success": true,
+      "method": "ReplaceReferencedDocument"
+    },
+    {
+      "parent": "02_底盘各零件及装配\\02_D305四柱底盘_分件装配.SLDASM",
+      "source_reference": "E:\\WorkSpace\\树木涂白机器人\\硬件资料\\(D305)酷点机器人-4WD四驱底盘\\SolidWorks2020_双层底盘\\零件\\M3x6螺钉_简化.SLDPRT",
+      "packed_reference": "02_底盘各零件及装配\\底盘_M3x6螺钉_简化.SLDPRT",
+      "success": true,
+      "method": "ReplaceReferencedDocument"
+    },
+    {
+      "parent": "02_底盘各零件及装配\\02_D305四柱底盘_分件装配.SLDASM",
+      "source_reference": "E:\\WorkSpace\\树木涂白机器人\\硬件资料\\(D305)酷点机器人-4WD四驱底盘\\SolidWorks2020_双层底盘\\零件\\双公头支撑柱_M3_56.5_下13上9.SLDPRT",
+      "packed_reference": "02_底盘各零件及装配\\底盘_双公头支撑柱_M3_56.5_下13上9.SLDPRT",
+      "success": true,
+      "method": "ReplaceReferencedDocument"
+    }
+  ]
+}

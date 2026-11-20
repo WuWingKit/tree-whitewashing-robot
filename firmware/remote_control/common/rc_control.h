@@ -10,6 +10,9 @@ typedef struct {
     uint32_t zero_since[2], last_drive, last_tick;
     uint8_t armed, estop;
     uint16_t last_seq;
+    uint8_t upper_output, upper_seen;
+    uint16_t upper_seq;
+    uint32_t last_upper;
 } rc_control_t;
 void rc_control_init(rc_control_t *c,uint32_t now);
 void rc_control_stop(rc_control_t *c,uint32_t now);
