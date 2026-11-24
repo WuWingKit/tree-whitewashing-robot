@@ -130,6 +130,14 @@ static void upper_tests(void) {
     f=frame(RC_UPPER,1,0);f.seq=65535;assert(rc_control_command(&c,&f,0xffffff81u));
     f.seq=0;f.left=2;assert(rc_control_command(&c,&f,0xffffff82u));
     rc_control_tick(&c,0xacu);assert(!c.upper_output && !c.armed);
-    puts("PASS upper: CH1/CH2 masks, invalid payload, duplicate/old frames, boot/arm/stop/estop, independent leases, stale command and rollover");
+    /* A dedicated CH2 stop keeps the session alive for a subsequent pump start. */
+    rc_control_init(&c,4000);arm(&c,4000);
+    f=frame(RC_UPPER,RC_UPPER_PUMP,0);f.seq=200;
+    assert(rc_control_command(&c,&f,4001) && c.upper_output==RC_UPPER_PUMP);
+    f=frame(RC_UPPER,0,0);f.seq=201;
+    assert(rc_control_command(&c,&f,4050) && !c.upper_output && c.armed);
+    f=frame(RC_UPPER,RC_UPPER_PUMP,0);f.seq=202;
+    assert(rc_control_command(&c,&f,4100) && c.upper_output==RC_UPPER_PUMP && c.armed);
+    puts("PASS upper: CH1/CH2 masks, pump on/off/on, command order, safety leases, stop and rollover");
 }
 int main(void) {protocol_tests();control_tests();reverse_tests();sensor_frame_tests();upper_tests();puts("All core tests passed.");return 0;}

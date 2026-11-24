@@ -15,17 +15,25 @@
 #include "soc/usb_reg.h"
 #include "soc/usb_struct.h"
 #include "cameras.h"
+#include "usb_camera_config.h"
+#ifdef TREE_CAMERA_SPI
+#include "camera_link_esp.h"
+#define LOCAL_CAMERAS 1
+#else
+#define LOCAL_CAMERAS 2
+#endif
 #define MAX_FORMATS 24
 #define JPEG_CAP (256*1024)
 typedef struct {
  bool present,streaming; uint8_t addr,uvc_index;
- size_t count; uvc_host_frame_info_t formats[MAX_FORMATS];
+ size_t count, advertised; uvc_host_frame_info_t formats[MAX_FORMATS];
  uvc_host_stream_hdl_t handle;
  uint8_t *jpeg;size_t len;int64_t stamp;
+ unsigned raw_width,raw_height;
  uint32_t frames,errors,oversize;esp_err_t error;int selected;
 } camera_t;
 typedef struct {int type,id,format;uint8_t addr,uvc_index;size_t count;} command_t;
-static camera_t cams[2];
+static camera_t cams[LOCAL_CAMERAS];
 static QueueHandle_t commands;
 static SemaphoreHandle_t lock;
 static const char *TAG="tree_uvc";
@@ -33,6 +41,8 @@ typedef struct {
  usb_device_handle_t handle;
  uint8_t address,device_class;uint16_t vid,pid;
  bool video_interface,hub_interface;
+ uint16_t video_iso_min,video_iso_max;
+ bool video_bulk_in;
 } observed_t;
 static observed_t observed[8];
 static usb_host_client_handle_t observer_client;
@@ -50,10 +60,20 @@ static void observe_address(uint8_t address) {
  if(usb_host_get_device_descriptor(h,&d)==ESP_OK) {o.vid=d->idVendor;o.pid=d->idProduct;o.device_class=d->bDeviceClass;}
  if(usb_host_get_active_config_descriptor(h,&cfg)==ESP_OK) {
   const uint8_t *p=(const uint8_t*)cfg;size_t offset=0;
+  bool streaming_interface=false;
   while(offset+2<=cfg->wTotalLength && p[offset]>=2 && offset+p[offset]<=cfg->wTotalLength) {
-   if(p[offset+1]==4 && p[offset]>=9) {
-    if(p[offset+5]==14) o.video_interface=true;
-    if(p[offset+5]==9) o.hub_interface=true;
+   const uint8_t *desc=p+offset;
+   if(desc[1]==4) {
+    streaming_interface=desc[0]>=9 && desc[5]==14 && desc[6]==2;
+    if(desc[0]>=9 && desc[5]==14) o.video_interface=true;
+    if(desc[0]>=9 && desc[5]==9) o.hub_interface=true;
+   } else if(streaming_interface && desc[1]==5 && desc[0]>=7 && (desc[2]&0x80)) {
+    uint8_t type=desc[3]&3;
+    uint16_t bytes=(desc[4]|(desc[5]<<8))&0x7ff;
+    if(type==1 && bytes) {
+     if(!o.video_iso_min || bytes<o.video_iso_min) o.video_iso_min=bytes;
+     if(bytes>o.video_iso_max) o.video_iso_max=bytes;
+    } else if(type==2) o.video_bulk_in=true;
    }
    offset+=p[offset];
   }
@@ -67,7 +87,11 @@ static void observer_event(const usb_host_client_event_msg_t *event,void *arg) {
  else if(event->event==USB_HOST_CLIENT_EVENT_DEV_GONE) {
   for(int i=0;i<8;i++) if(observed[i].handle==event->dev_gone.dev_hdl) {
    usb_device_handle_t h=observed[i].handle;
+   uint8_t addr=observed[i].address;
    xSemaphoreTake(lock,portMAX_DELAY);memset(&observed[i],0,sizeof(observed[i]));xSemaphoreGive(lock);
+   /* An unopened stream has no UVC disconnect callback. */
+   command_t cmd={.type=5,.addr=addr};
+   if(xQueueSend(commands,&cmd,0)!=pdTRUE) ESP_LOGW(TAG,"Disconnect queue full");
    (void)usb_host_device_close(observer_client,h);break;
   }
  }
@@ -95,6 +119,18 @@ cJSON *usb_diagnostics_json(void) {
  usb_host_lib_info_t info={0};esp_err_t e=usb_host_lib_info(&info);
  uint32_t port=USB0.hprt;
  cJSON *o=cJSON_CreateObject();cJSON_AddStringToObject(o,"host_query",esp_err_to_name(e));
+ cJSON_AddNumberToObject(o,"d_minus_gpio",ROBOT_CAMERA_USB_DM_GPIO);
+ cJSON_AddNumberToObject(o,"d_plus_gpio",ROBOT_CAMERA_USB_DP_GPIO);
+ cJSON_AddNumberToObject(o,"pcb_camera_ports",ROBOT_CAMERA_USB_PORT_COUNT);
+ cJSON_AddBoolToObject(o,"external_hub_required_for_two_cameras",ROBOT_CAMERA_USB_EXTERNAL_HUB_REQUIRED);
+ cJSON_AddBoolToObject(o,"independent_usb_gpio_ports",false);
+#ifdef TREE_CAMERA_SPI
+ cJSON_AddStringToObject(o,"wiring","CAM1 -> ESP32 USB; CAM2 -> STM32 USB -> SPI -> ESP32");
+ cJSON_AddStringToObject(o,"camera_numbering","0=ESP32 USB; 1=STM32 USB over SPI");
+#else
+ cJSON_AddStringToObject(o,"wiring","J_HUB1 -> hub downstream 1; J_HUB2 -> hub downstream 2; hub upstream D- -> GPIO19, D+ -> GPIO20; GND common, VBUS=5V supply (not GPIO)");
+ cJSON_AddStringToObject(o,"camera_numbering","enumeration order; camera ID is not a fixed PCB port number");
+#endif
  cJSON_AddNumberToObject(o,"enumerated_devices",info.num_devices);cJSON_AddNumberToObject(o,"host_clients",info.num_clients);
  cJSON_AddBoolToObject(o,"root_connected",(port&USB_PRTCONNSTS)!=0);
  cJSON_AddBoolToObject(o,"root_enabled",(port&USB_PRTENA)!=0);
@@ -107,6 +143,11 @@ cJSON *usb_diagnostics_json(void) {
   cJSON_AddNumberToObject(v,"address",d->address);cJSON_AddNumberToObject(v,"vid",d->vid);cJSON_AddNumberToObject(v,"pid",d->pid);
   cJSON_AddNumberToObject(v,"device_class",d->device_class);cJSON_AddBoolToObject(v,"video_interface",d->video_interface);
   cJSON_AddBoolToObject(v,"hub_interface",d->hub_interface);
+  if(d->video_interface) {
+   cJSON_AddNumberToObject(v,"video_iso_min_packet",d->video_iso_min);
+   cJSON_AddNumberToObject(v,"video_iso_max_packet",d->video_iso_max);
+   cJSON_AddBoolToObject(v,"video_bulk_in",d->video_bulk_in);
+  }
  }
  xSemaphoreGive(lock);return o;
 }
@@ -124,10 +165,19 @@ static void connected(const uvc_host_driver_event_data_t *event,void *arg) {
 static bool got_frame(const uvc_host_frame_t *frame,void *arg) {
  camera_t *c=arg;
  if(xSemaphoreTake(lock,pdMS_TO_TICKS(5))!=pdTRUE) return true;
- if(frame->data_len>JPEG_CAP) {c->oversize++;}
- else if(frame->data_len>=4 && frame->data[0]==0xff && frame->data[1]==0xd8 &&
-         frame->data[frame->data_len-2]==0xff && frame->data[frame->data_len-1]==0xd9) {
-  memcpy(c->jpeg,frame->data,frame->data_len);c->len=frame->data_len;
+ unsigned w=frame->vs_format.h_res,h=frame->vs_format.v_res;
+ size_t length=frame->data_len;
+ bool raw=frame->vs_format.format==UVC_VS_FORMAT_YUY2 && w && h && w<=320 && h<=240 &&
+          length==(size_t)w*h*2;
+ if(frame->vs_format.format==UVC_VS_FORMAT_MJPEG && length<=JPEG_CAP) {
+  /* The UVC payload can contain zero padding after a complete JPEG. */
+  while(length>4 && frame->data[length-1]==0) length--;
+ }
+ if(length>JPEG_CAP) {c->oversize++;}
+ else if(raw || (length>=4 && frame->data[0]==0xff && frame->data[1]==0xd8 &&
+         frame->data[length-2]==0xff && frame->data[length-1]==0xd9)) {
+  memcpy(c->jpeg,frame->data,length);c->len=length;
+  c->raw_width=raw?w:0;c->raw_height=raw?h:0;
   c->stamp=esp_timer_get_time();c->frames++;
  } else c->errors++;
  xSemaphoreGive(lock);return true; /* Never retain a driver's frame. */
@@ -151,6 +201,16 @@ static esp_err_t close_camera(camera_t *c) {
  if(e==ESP_OK) {c->handle=NULL;c->streaming=false;c->len=0;}
  xSemaphoreGive(lock);return e;
 }
+static uint32_t preview_interval(const uvc_host_frame_info_t *f) {
+ const bool raw=f->format==UVC_VS_FORMAT_YUY2;
+ const uint32_t minimum=raw?2000000u:1000000u;
+ uint32_t interval=f->default_interval>=minimum?f->default_interval:0;
+ if(f->interval_type) {
+  for(unsigned i=0;i<f->interval_type && i<CONFIG_UVC_INTERVAL_ARRAY_SIZE;i++)
+   if(f->interval[i]>=minimum && (!interval || f->interval[i]<interval)) interval=f->interval[i];
+ } else if(!interval && f->interval_max>=minimum) interval=f->interval_max;
+ return interval?interval:(raw?0:f->default_interval);
+}
 static void manager_task(void *arg) {
  command_t cmd;
  for(;;) {
@@ -158,8 +218,11 @@ static void manager_task(void *arg) {
   if(cmd.type==1) {
    int id=-1;
    xSemaphoreTake(lock,portMAX_DELAY);
-   for(int i=0;i<2;i++) if(cams[i].present && cams[i].addr==cmd.addr && cams[i].uvc_index==cmd.uvc_index) id=-2;
-   if(id!=-2) for(int i=0;i<2;i++) if(!cams[i].present && !cams[i].handle) {id=i;break;}
+   for(int i=0;i<LOCAL_CAMERAS;i++) if(cams[i].present && cams[i].addr==cmd.addr) {
+    if(cams[i].count || cams[i].uvc_index==cmd.uvc_index) id=-2;
+    else if(!cams[i].handle) id=i;
+   }
+   if(id!=-2) for(int i=0;i<LOCAL_CAMERAS;i++) if(!cams[i].present && !cams[i].handle) {id=i;break;}
    xSemaphoreGive(lock);
    if(id<0 || !cmd.count || cmd.count>256) continue;
    uvc_host_frame_info_t *f=calloc(cmd.count,sizeof(*f));if(!f) continue;
@@ -167,11 +230,14 @@ static void manager_task(void *arg) {
    esp_err_t e=uvc_host_get_frame_list(cmd.addr,cmd.uvc_index,(uvc_host_frame_info_t (*)[])f,&n);
    if(e==ESP_OK) {
     xSemaphoreTake(lock,portMAX_DELAY);camera_t *c=&cams[id];
-    c->present=true;c->addr=cmd.addr;c->uvc_index=cmd.uvc_index;c->count=0;
+    c->present=true;c->addr=cmd.addr;c->uvc_index=cmd.uvc_index;c->count=0;c->advertised=n;
     c->len=0;c->frames=0;c->errors=0;c->oversize=0;c->selected=-1;
     for(size_t i=0;i<n && c->count<MAX_FORMATS;i++) if(f[i].format==UVC_VS_FORMAT_MJPEG) c->formats[c->count++]=f[i];
+    for(size_t i=0;i<n && c->count<MAX_FORMATS;i++) if(f[i].format==UVC_VS_FORMAT_YUY2 &&
+        f[i].h_res && f[i].h_res<=320 && f[i].h_res%2==0 &&
+        f[i].v_res && f[i].v_res<=240 && preview_interval(&f[i])) c->formats[c->count++]=f[i];
     c->error=c->count?ESP_OK:ESP_ERR_NOT_SUPPORTED;xSemaphoreGive(lock);
-    ESP_LOGI(TAG,"Camera %d address %u: %u MJPEG formats",id,cmd.addr,(unsigned)c->count);
+    ESP_LOGI(TAG,"Camera %d address %u: %u advertised, %u preview modes",id,cmd.addr,(unsigned)n,(unsigned)c->count);
    }
    free(f);continue;
   }
@@ -182,25 +248,31 @@ static void manager_task(void *arg) {
    }
    continue;
   }
+  if(cmd.type==5) {
+   for(int i=0;i<LOCAL_CAMERAS;i++) {
+    camera_t *c=&cams[i];
+    if(c->addr==cmd.addr && close_camera(c)==ESP_OK) {
+     xSemaphoreTake(lock,portMAX_DELAY);
+     c->present=false;c->len=0;c->count=0;c->advertised=0;c->addr=0;
+     xSemaphoreGive(lock);
+    }
+   }
+   continue;
+  }
   /* Sequential acquisition: complete closure before opening the other camera. */
   esp_err_t closed=ESP_OK;
-  for(int i=0;i<2;i++) if(close_camera(&cams[i])!=ESP_OK) closed=ESP_FAIL;
+  for(int i=0;i<LOCAL_CAMERAS;i++) if(close_camera(&cams[i])!=ESP_OK) closed=ESP_FAIL;
   if(cmd.type==3 || closed!=ESP_OK) continue;
   camera_t *c=&cams[cmd.id];
   xSemaphoreTake(lock,portMAX_DELAY);
   bool valid=c->present && cmd.format>=0 && cmd.format<c->count;
   uvc_host_frame_info_t f=valid?c->formats[cmd.format]:(uvc_host_frame_info_t){0};
   xSemaphoreGive(lock);if(!valid) continue;
-  /* Prefer <=10 fps only when the descriptor explicitly offers that interval. */
-  uint32_t interval=f.default_interval;
-  if(f.interval_type) {
-   for(unsigned i=0;i<f.interval_type && i<CONFIG_UVC_INTERVAL_ARRAY_SIZE;i++)
-    if(f.interval[i]>=1000000u && (interval<1000000u || f.interval[i]<interval)) interval=f.interval[i];
-  } else if(f.interval_max>=1000000u) interval=f.interval_max;
+  uint32_t interval=preview_interval(&f);
   uvc_host_stream_config_t cfg={
    .event_cb=stream_event,.frame_cb=got_frame,.user_ctx=c,
    .usb={.dev_addr=c->addr,.uvc_stream_index=c->uvc_index},
-   .vs_format={.h_res=f.h_res,.v_res=f.v_res,.format=UVC_VS_FORMAT_MJPEG,.fps=interval?10000000.0f/interval:0},
+   .vs_format={.h_res=f.h_res,.v_res=f.v_res,.format=f.format,.fps=interval?10000000.0f/interval:0},
    .advanced={.number_of_frame_buffers=2,.frame_size=JPEG_CAP,
     .frame_heap_caps=MALLOC_CAP_SPIRAM,.number_of_urbs=3,.urb_size=4096},
   };
@@ -214,9 +286,14 @@ static void manager_task(void *arg) {
  }
 }
 void cameras_init(void) {
+ ESP_LOGI(TAG,"USB internal PHY: D- GPIO%d, D+ GPIO%d; local camera slots=%d",
+  ROBOT_CAMERA_USB_DM_GPIO,ROBOT_CAMERA_USB_DP_GPIO,LOCAL_CAMERAS);
  lock=xSemaphoreCreateMutex();commands=xQueueCreate(12,sizeof(command_t));
  assert(lock && commands);
- for(int i=0;i<2;i++) {cams[i].jpeg=heap_caps_malloc(JPEG_CAP,MALLOC_CAP_SPIRAM);assert(cams[i].jpeg);cams[i].selected=-1;}
+ for(int i=0;i<LOCAL_CAMERAS;i++) {cams[i].jpeg=heap_caps_malloc(JPEG_CAP,MALLOC_CAP_SPIRAM);assert(cams[i].jpeg);cams[i].selected=-1;}
+#ifdef TREE_CAMERA_SPI
+ camera_spi_init();
+#endif
  const usb_host_config_t host={.skip_phy_setup=false,.intr_flags=ESP_INTR_FLAG_LEVEL1};
  ESP_ERROR_CHECK(usb_host_install(&host));
  assert(xTaskCreate(library_task,"usb_events",4096,NULL,15,NULL)==pdPASS);
@@ -228,51 +305,89 @@ void cameras_init(void) {
 }
 cJSON *cameras_json(void) {
  cJSON *a=cJSON_CreateArray();xSemaphoreTake(lock,portMAX_DELAY);
- for(int i=0;i<2;i++) {
+ for(int i=0;i<LOCAL_CAMERAS;i++) {
   camera_t *c=&cams[i];cJSON *o=cJSON_CreateObject();cJSON_AddItemToArray(a,o);
   cJSON_AddNumberToObject(o,"id",i);cJSON_AddBoolToObject(o,"present",c->present);
   cJSON_AddNumberToObject(o,"usb_address",c->addr);cJSON_AddNumberToObject(o,"uvc_index",c->uvc_index);
   cJSON_AddBoolToObject(o,"streaming",c->streaming);cJSON_AddNumberToObject(o,"selected",c->selected);
   cJSON_AddStringToObject(o,"error",esp_err_to_name(c->error));cJSON_AddNumberToObject(o,"frames",c->frames);
   cJSON_AddNumberToObject(o,"bad_frames",c->errors);cJSON_AddNumberToObject(o,"oversize",c->oversize);
+  cJSON_AddNumberToObject(o,"advertised_modes",c->advertised);
   if(c->len) cJSON_AddNumberToObject(o,"frame_age_ms",(esp_timer_get_time()-c->stamp)/1000);
   else cJSON_AddNullToObject(o,"frame_age_ms");
   cJSON *formats=cJSON_AddArrayToObject(o,"formats");
   for(size_t j=0;j<c->count;j++) {cJSON *f=cJSON_CreateObject();cJSON_AddItemToArray(formats,f);
    cJSON_AddNumberToObject(f,"index",j);cJSON_AddNumberToObject(f,"width",c->formats[j].h_res);
    cJSON_AddNumberToObject(f,"height",c->formats[j].v_res);
+   cJSON_AddStringToObject(f,"encoding",c->formats[j].format==UVC_VS_FORMAT_MJPEG?"MJPEG":"YUY2");
    cJSON_AddNumberToObject(f,"default_fps",c->formats[j].default_interval?10000000.0/c->formats[j].default_interval:0);
+   uint32_t interval=preview_interval(&c->formats[j]);
+   cJSON_AddNumberToObject(f,"preview_fps",interval?10000000.0/interval:0);
   }
  }
- xSemaphoreGive(lock);return a;
+ xSemaphoreGive(lock);
+#ifdef TREE_CAMERA_SPI
+ cJSON_AddItemToArray(a,camera_spi_status());
+#endif
+ return a;
 }
 esp_err_t cameras_select(int id,int format) {
- if(id<0 || id>1 || format<0) return ESP_ERR_INVALID_ARG;
+#ifdef TREE_CAMERA_SPI
+ if(id==1 && format==0) { camera_spi_select(true); return ESP_OK; }
+#endif
+ if(id<0 || id>=LOCAL_CAMERAS || format<0) return ESP_ERR_INVALID_ARG;
  xSemaphoreTake(lock,portMAX_DELAY);bool valid=cams[id].present && format<cams[id].count;xSemaphoreGive(lock);
  if(!valid) return ESP_ERR_INVALID_ARG;
  command_t c={.type=2,.id=id,.format=format};return xQueueSend(commands,&c,0)==pdTRUE?ESP_OK:ESP_ERR_TIMEOUT;
 }
 esp_err_t cameras_stop(void) {
+#ifdef TREE_CAMERA_SPI
+ camera_spi_select(false);
+#endif
  command_t c={.type=3};return xQueueSend(commands,&c,0)==pdTRUE?ESP_OK:ESP_ERR_TIMEOUT;
 }
 bool cameras_idle(void) {
  xSemaphoreTake(lock,portMAX_DELAY);
- bool idle=!cams[0].handle && !cams[1].handle && uxQueueMessagesWaiting(commands)==0;
- xSemaphoreGive(lock);return idle;
+ bool idle=uxQueueMessagesWaiting(commands)==0;
+ for(int i=0;i<LOCAL_CAMERAS;i++) idle=idle && !cams[i].handle;
+ xSemaphoreGive(lock);
+#ifdef TREE_CAMERA_SPI
+ idle=idle && camera_spi_idle();
+#endif
+ return idle;
 }
 esp_err_t cameras_jpeg(httpd_req_t *req,int id) {
  httpd_resp_set_hdr(req,"Access-Control-Allow-Origin","*");
- if(id<0 || id>1) return httpd_resp_send_err(req,HTTPD_400_BAD_REQUEST,"invalid id");
+ httpd_resp_set_hdr(req,"Access-Control-Expose-Headers","X-Frame-Seq, X-Frame-Age-Ms");
+#ifdef TREE_CAMERA_SPI
+ if(id==1) return camera_spi_jpeg(req);
+#endif
+ if(id<0 || id>=LOCAL_CAMERAS) return httpd_resp_send_err(req,HTTPD_400_BAD_REQUEST,"invalid id");
  uint8_t *copy=heap_caps_malloc(JPEG_CAP,MALLOC_CAP_SPIRAM);
  if(!copy) return httpd_resp_send_err(req,HTTPD_500_INTERNAL_SERVER_ERROR,"no PSRAM");
  xSemaphoreTake(lock,portMAX_DELAY);camera_t *c=&cams[id];size_t len=c->len;
  int64_t age=(esp_timer_get_time()-c->stamp)/1000;
  if(!c->streaming || age>1500) len=0;
  if(len) memcpy(copy,c->jpeg,len);
- uint32_t seq=c->frames;xSemaphoreGive(lock);
- if(!len) {free(copy);return sensor_busy(req,"no fresh JPEG; select camera first");}
+ uint32_t seq=c->frames;unsigned w=c->raw_width,h=c->raw_height;xSemaphoreGive(lock);
+ if(!len) {free(copy);return sensor_busy(req,"no fresh image; select camera first");}
  char n[32];snprintf(n,sizeof(n),"%lu",(unsigned long)seq);httpd_resp_set_hdr(req,"X-Frame-Seq",n);
  snprintf(n,sizeof(n),"%lld",(long long)age);httpd_resp_set_hdr(req,"X-Frame-Age-Ms",n);
- httpd_resp_set_type(req,"image/jpeg");httpd_resp_set_hdr(req,"Cache-Control","no-store");
+ httpd_resp_set_hdr(req,"Cache-Control","no-store");
+ if(w) {
+  /* BMP palette and top-down grayscale for raw YUY2. Keep conversion off the USB task. */
+  enum { PIXELS=54+256*4 };
+  size_t stride=(w+3u)&~3u,size=PIXELS+stride*h;
+  uint8_t *bmp=heap_caps_calloc(1,size,MALLOC_CAP_SPIRAM);
+  if(!bmp) {free(copy);return httpd_resp_send_err(req,HTTPD_500_INTERNAL_SERVER_ERROR,"no PSRAM");}
+  bmp[0]='B';bmp[1]='M';
+  uint32_t header[]={size,PIXELS,40,w,(uint32_t)-(int32_t)h,0x00080001u};
+  memcpy(bmp+2,&header[0],4);memcpy(bmp+10,&header[1],sizeof header-4);
+  for(unsigned v=0;v<256;v++) memset(bmp+54+4*v,v,3);
+  for(unsigned y=0;y<h;y++) for(unsigned x=0;x<w;x++)
+   bmp[PIXELS+y*stride+x]=copy[(y*w+x)*2];
+  free(copy);copy=bmp;len=size;
+ }
+ httpd_resp_set_type(req,w?"image/bmp":"image/jpeg");
  esp_err_t e=httpd_resp_send(req,(const char*)copy,len);free(copy);return e;
 }

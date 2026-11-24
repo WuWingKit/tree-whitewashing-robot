@@ -104,6 +104,14 @@
     },
     "pcb_v2": {
       "revision": "pcb_v42_upper_active_high_20261120",
+      "camera": {
+        "stm_usb": { "dm": "PA11", "dp": "PA12" },
+        "esp_usb": { "dm": "GPIO19", "dp": "GPIO20" },
+        "spi": {
+          "stm": { "sck": "PB13", "mosi": "PC3", "miso": "PC2", "cs": "PB12", "ready": "PF3" },
+          "esp": { "sck": "GPIO12", "mosi": "GPIO11", "miso": "GPIO13", "cs": "GPIO10", "ready": "GPIO14" }
+        }
+      },
       "uart": {
         "stm_tx": "PA2",
         "stm_rx": "PA3",

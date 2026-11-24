@@ -9,7 +9,9 @@ extern "C" {
 #define RC_VERSION 1u
 enum { RC_DRIVE=1, RC_STOP=2, RC_ARM=3, RC_UPPER=4,
        RC_STATUS_DISARMED=0x80, RC_STATUS_ARMED=0x81, RC_STATUS_ESTOP=0x82,
-       RC_STATUS_UPPER=0x83 };
+       RC_STATUS_UPPER=0x83, RC_STATUS_CAMERA=0x84 };
+/* RC_STATUS_CAMERA: seq=SPI attempts, left=valid responses, right bit0=SPI init,
+ * bit1=READY input, bit2=USB Host init, bit3=USB attach, bits 4..7=USB camera state. */
 /* RC_UPPER: left=CH1/CH2 bit mask, right=0. Reserved CH3/4 stay LOW.
  * RC_STATUS_UPPER: left=applied GPIO mask, right=1 (active-high protocol v1).
  * A report confirms MCU output commands, not motor current or motion. */

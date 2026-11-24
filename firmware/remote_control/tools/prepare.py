@@ -9,6 +9,9 @@ import json
 import secrets
 import re
 import zipfile
+import hashlib
+import io
+from urllib.request import urlopen
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -18,8 +21,48 @@ HAL_NAMES = ["stm32f4xx_hal", "stm32f4xx_hal_cortex", "stm32f4xx_hal_gpio",
              "stm32f4xx_hal_flash_ex", "stm32f4xx_hal_pwr", "stm32f4xx_hal_pwr_ex",
              "stm32f4xx_hal_dma", "stm32f4xx_hal_tim", "stm32f4xx_hal_tim_ex",
              "stm32f4xx_hal_uart", "stm32f4xx_hal_iwdg"]
+CAMERA_HAL = ["stm32f4xx_hal_hcd", "stm32f4xx_ll_usb", "stm32f4xx_hal_spi"]
+USB_HOST_CORE = ["usbh_core", "usbh_ctlreq", "usbh_ioreq", "usbh_pipes"]
+USB_HOST_URL = "https://codeload.github.com/STMicroelectronics/stm32-mw-usb-host/zip/refs/tags/v3.5.1"
+USB_HOST_SHA256 = "84ff5f6529a9d93e374587c9bed09c39aebe6d99231c58459af29fae83059838"
 
-def prepare(materials):
+def enable_full_speed_isoc(host):
+    path = host / "Core/Src/usbh_ctlreq.c"
+    source = path.read_text(encoding="utf-8")
+    pattern = (r"(/\* For full-speed isochronous endpoints,[^\n]+\n"
+               r"[^\n]+\n[^\n]+\n[^\n]+\n[^\n]+\n"
+               r"\s*\(ep_descriptor->wMaxPacketSize > )(64|1023)U")
+    updated, matches = re.subn(pattern, r"\g<1>1023U", source)
+    if matches != 1:
+        raise SystemExit("Unexpected ST full-speed isochronous endpoint validation")
+    if updated != source:
+        path.write_text(updated, encoding="utf-8")
+
+def prepare_usb_host(vendor, archive=None):
+    target = vendor / "usb-host"
+    if archive is None and (target / ".archive-sha256").is_file():
+        if (target / ".archive-sha256").read_text(encoding="ascii") == USB_HOST_SHA256:
+            enable_full_speed_isoc(target)
+            return target
+    if archive is None:
+        with urlopen(USB_HOST_URL, timeout=35) as response:
+            archive = response.read(8 * 1024 * 1024)
+    else:
+        archive = Path(archive).read_bytes()
+    if hashlib.sha256(archive).hexdigest() != USB_HOST_SHA256:
+        raise SystemExit("ST USB Host v3.5.1 archive checksum mismatch")
+    with zipfile.ZipFile(io.BytesIO(archive)) as z:
+        for name in z.namelist():
+            rel = name.split("/", 1)[-1]
+            if not name.endswith("/") and (rel.startswith(("Core/Inc/", "Core/Src/")) or rel == "LICENSE.md"):
+                path = target / rel
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(z.read(name))
+    enable_full_speed_isoc(target)
+    (target / ".archive-sha256").write_text(USB_HOST_SHA256, encoding="ascii")
+    return target
+
+def prepare(materials, usb_host_archive=None):
     candidates = list(materials.rglob("3，标准例程-HAL库版本.zip"))
     if len(candidates) != 1:
         raise SystemExit("Expected one ALIENTEK HAL examples ZIP; use --materials to specify the directory.")
@@ -27,7 +70,7 @@ def prepare(materials):
     vendor.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(candidates[0]) as z:
         base = next(n.rsplit("USER/Template.uvprojx", 1)[0] for n in z.namelist()
-                    if "实验0-1 " in n and n.endswith("USER/Template.uvprojx"))
+                    if "0-1 Template" in n and n.endswith("USER/Template.uvprojx"))
         for n in z.namelist():
             if not n.startswith(base) or n.endswith("/"):
                 continue
@@ -36,7 +79,7 @@ def prepare(materials):
                        rel.startswith("HALLIB/STM32F4xx_HAL_Driver/Inc/") or
                        rel in ["USER/stm32f4xx.h", "USER/stm32f407xx.h",
                                "USER/system_stm32f4xx.h", "USER/system_stm32f4xx.c"] or
-                       rel in ["HALLIB/STM32F4xx_HAL_Driver/Src/"+s+".c" for s in HAL_NAMES])
+                       rel in ["HALLIB/STM32F4xx_HAL_Driver/Src/"+s+".c" for s in HAL_NAMES+CAMERA_HAL])
             if allowed:
                 target = vendor / rel
                 target.parent.mkdir(parents=True, exist_ok=True)
@@ -73,10 +116,29 @@ def prepare(materials):
             ET.SubElement(f, "FileType").text = "2" if source.endswith(".s") else "1"
             ET.SubElement(f, "FilePath").text = source.replace("/", "\\")
     configure_profile_targets(tree)
+    prepare_usb_host(vendor, usb_host_archive)
+    configure_camera_target(tree)
     ET.indent(tree)
     ET.ElementTree(tree).write(ROOT/"stm32/RemoteControl.uvprojx", encoding="utf-8", xml_declaration=True)
     prepare_sketch()
     print("Prepared ST HAL/CMSIS, Keil project and Arduino sketch. Originals unchanged.")
+
+def configure_camera_target(tree):
+    pcb2 = next(t for t in tree.findall(".//Target") if t.findtext("TargetName") == "RemoteControl_PCB_V2")
+    config = pcb2.find("TargetOption/TargetArmAds/Cads/VariousControls")
+    config.find("Define").text += ",TREE_F407_UVC=1"
+    config.find("IncludePath").text += ";.vendor\\usb-host\\Core\\Inc"
+    group = ET.SubElement(pcb2.find("Groups"), "Group")
+    ET.SubElement(group, "GroupName").text = "USB Camera and SPI"
+    files = ET.SubElement(group, "Files")
+    sources = ["App/camera_f407.c", "App/camera_usb_ll.c", "../common/camera_link.c"]
+    sources += [".vendor/usb-host/Core/Src/"+s+".c" for s in USB_HOST_CORE]
+    sources += [".vendor/HALLIB/STM32F4xx_HAL_Driver/Src/"+s+".c" for s in CAMERA_HAL]
+    for source in sources:
+        node = ET.SubElement(files, "File")
+        ET.SubElement(node, "FileName").text = Path(source).name
+        ET.SubElement(node, "FileType").text = "1"
+        ET.SubElement(node, "FilePath").text = source.replace("/", "\\")
 
 def configure_profile_targets(tree):
     import copy
@@ -125,4 +187,6 @@ def prepare_sketch():
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("--materials", type=Path, default=REPO/"硬件资料")
-    prepare(p.parse_args().materials)
+    p.add_argument("--usb-host-archive", type=Path, help="offline copy of the pinned ST USB Host v3.5.1 ZIP")
+    args = p.parse_args()
+    prepare(args.materials, args.usb_host_archive)

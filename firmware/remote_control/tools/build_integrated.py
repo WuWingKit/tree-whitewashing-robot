@@ -17,6 +17,32 @@ import runpy
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def prepare_uvc(source: Path, destination: Path):
+    # The pinned driver's frame-list loop consumes the descriptor after a
+    # format's last frame. Preserve it for the outer loop (e.g. YUY2 then MJPEG).
+    shutil.copytree(source, destination, dirs_exist_ok=True)
+    parser = destination / 'uvc_descriptor_parsing.c'
+    original = parser.read_text(encoding='utf-8')
+    skipped = """        while ((current_desc = usb_parse_next_descriptor_of_type(current_desc, safe_wTotalLength, UVC_CS_INTERFACE, &format_offset))) {
+            if (!uvc_desc_is_frame_desc(current_desc)) {
+                break;
+            }
+            uvc_frame_desc_t *this_frame = (uvc_frame_desc_t *)current_desc;"""
+    fixed = """        for (;;) {
+            int next_offset = format_offset;
+            const usb_standard_desc_t *next_desc = usb_parse_next_descriptor_of_type(
+                current_desc, safe_wTotalLength, UVC_CS_INTERFACE, &next_offset);
+            if (!next_desc || !uvc_desc_is_frame_desc(next_desc)) {
+                break;
+            }
+            current_desc = next_desc;
+            format_offset = next_offset;
+            uvc_frame_desc_t *this_frame = (uvc_frame_desc_t *)current_desc;"""
+    if original.count(skipped) != 1:
+        raise SystemExit('Unexpected UVC descriptor parser; check the pinned source in SOURCES.md')
+    parser.write_text(original.replace(skipped, fixed), encoding='utf-8')
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--idf', type=Path, default=Path(os.environ.get('IDF_PATH', 'E:/espwork/tree_robot_v3/esp-idf')))
@@ -41,16 +67,19 @@ def main():
     for name in ['RemoteControl.ino', 'ota_boot.cpp', 'ota_support.h', 'ota_config.h', 'ota_ui.h', 'web_ui.h', 'sensor_support.h', 'upper_support.h', 'robot_pinmap.h']:
         shutil.copy2(sketch / name, args.work / 'main' / ('RemoteControl.cpp' if name.endswith('.ino') else name))
     shutil.copytree(sketch / 'src', args.work / 'main/src', dirs_exist_ok=True)
+    for name in ['camera_link.c', 'camera_link.h']:
+        shutil.copy2(ROOT / 'common' / name, args.work / 'main/src' / name)
     sensor = ROOT.parent / 'sensor_test/esp32/main'
-    for name in ['cameras.c', 'cameras.h']:
+    for name in ['cameras.c', 'cameras.h', 'usb_camera_config.h']:
         shutil.copy2(sensor / name, args.work / 'main' / name)
     page = (sensor / 'index.html').read_text(encoding='utf-8')
     page = page.replace('/api/status', '/api/sensors/status')
-    page = page.replace('本固件只采集传感器，持续发送停车指令。双摄像头接入后，选择一路采集并切换测试。',
-                        '遥控、OTA、测距和摄像头已整合。双摄像头选择一路采集；遥控请在原主页操作。')
+    page = page.replace('本页用于摄像头和 ToF 联调。', '遥控请在原主页操作。本页用于摄像头和 ToF 联调。')
     (args.work / 'main/index.html').write_text(page, encoding='utf-8')
+    uvc_component = args.work / 'components_local' / 'usb_host_uvc'
+    prepare_uvc(args.uvc, uvc_component)
     env = os.environ.copy()
-    env.update(IDF_PATH=str(args.idf), TREE_UVC_PATH=str(args.uvc), TREE_ARDUINO_PATH=str(args.arduino), IDF_COMPONENT_MANAGER='0',
+    env.update(IDF_PATH=str(args.idf), TREE_UVC_PATH=str(uvc_component), TREE_ARDUINO_PATH=str(args.arduino), IDF_COMPONENT_MANAGER='0',
                IDF_PYTHON_ENV_PATH=str(Path(args.python).parent.parent),
                IDF_TOOLS_PATH=str(args.idf.parent / 'idf_tools'))
     env['PATH'] = os.pathsep.join([str(args.tool_bin), str(Path(args.python).parent), str(args.ninja.parent), env['PATH']])
@@ -74,7 +103,8 @@ def main():
     image = (out/'app.bin').read_bytes()
     if len(image)>0x140000 or image[0]!=0xe9 or image[12:14]!=b'\x09\x00' or image[32:36]!=b'\x32\x54\xcd\xab' or b'TREE_ROBOT_S3_RC_OTA_V1' not in image:
         raise SystemExit('Image incompatible with original OTA checks/slot size')
-    fw_version = re.search(r'FW_VERSION="([^"]+)"', (sketch/'ota_support.h').read_text(encoding='utf-8')).group(1)
+    version_pattern = r'DUAL_CAMERA_VERSION "([^"]+)"' if args.profile == 'pcb_v2' else r'FW_VERSION="([^"]+)"'
+    fw_version = re.search(version_pattern, (sketch/'ota_support.h').read_text(encoding='utf-8')).group(1)
     (out/'ota.json').write_text(json.dumps(dict(target='tree-robot-esp32s3',version=fw_version,
         size=len(image),sha256=hashlib.sha256(image).hexdigest(),file='app.bin'),indent=2),encoding='utf-8')
     (out/'wiring_profile.json').write_text(json.dumps(dict(profile=args.profile,

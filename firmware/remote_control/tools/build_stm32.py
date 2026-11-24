@@ -5,7 +5,7 @@ import subprocess
 import json
 import hashlib
 import runpy
-from prepare import ROOT, HAL_NAMES
+from prepare import ROOT, HAL_NAMES, CAMERA_HAL, USB_HOST_CORE, enable_full_speed_isoc
 
 def build(keil, profile):
     runpy.run_path(str(ROOT.parent/"board_profiles/generate.py"))["generate"](check=True)
@@ -21,6 +21,15 @@ def build(keil, profile):
     sources = [ROOT/"stm32/App/main.c", ROOT/"stm32/App/tof.c", ROOT/"common/rc_protocol.c", ROOT/"common/rc_control.c",
                ROOT/"stm32/.vendor/USER/system_stm32f4xx.c"]
     sources += [ROOT/"stm32/.vendor/HALLIB/STM32F4xx_HAL_Driver/Src"/(s+".c") for s in HAL_NAMES]
+    if profile == "pcb_v2":
+        usb_host = ROOT/"stm32/.vendor/usb-host/Core"
+        if not (usb_host/"Src/usbh_core.c").is_file():
+            raise SystemExit("Run firmware/remote_control/tools/prepare.py to install the pinned ST USB Host library")
+        enable_full_speed_isoc(usb_host.parent)
+        includes += [usb_host/"Inc"]
+        sources += [usb_host/"Src"/(name+".c") for name in USB_HOST_CORE]
+        sources += [ROOT/"stm32/.vendor/HALLIB/STM32F4xx_HAL_Driver/Src"/(s+".c") for s in CAMERA_HAL]
+        sources += [ROOT/"stm32/App/camera_f407.c", ROOT/"stm32/App/camera_usb_ll.c", ROOT/"common/camera_link.c"]
     objects = []
     def run(args):
         subprocess.run([str(x) for x in args], check=True, cwd=out)
@@ -29,6 +38,8 @@ def build(keil, profile):
         args = [tools/"armcc.exe", "--cpu=Cortex-M4.fp", "--fpu=FPv4-SP", "--c99", "-O1",
                 "--split_sections", "-g", "-DUSE_HAL_DRIVER", "-DSTM32F407xx",
                 "-DROBOT_WIRING_PROFILE="+str(profile_number)]
+        if profile == "pcb_v2":
+            args += ["-DTREE_F407_UVC=1"]
         for inc in includes:
             args += ["-I", inc]
         run(args+["-c", src, "-o", obj])

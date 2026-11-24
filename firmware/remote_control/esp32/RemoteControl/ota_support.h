@@ -12,8 +12,11 @@
 #include "src/rc_ota_image.h"
 #include "ota_ui.h"
 
-#ifdef TREE_SENSOR_USB
-static const char *FW_VERSION="0.4.0-upper-usb-tof";
+#define DUAL_CAMERA_VERSION "0.5.5-dual-usb-spi"
+#if defined(TREE_CAMERA_SPI)
+static const char *FW_VERSION=DUAL_CAMERA_VERSION;
+#elif defined(TREE_SENSOR_USB)
+static const char *FW_VERSION="0.4.1-usb-pinmap";
 #else
 static const char *FW_VERSION="0.4.0-upper-tof";
 #endif

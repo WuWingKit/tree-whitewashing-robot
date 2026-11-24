@@ -1,23 +1,57 @@
 <!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>树木涂白机器人 · 传感器测试</title>
 <style>body{font:16px system-ui;max-width:1000px;margin:28px auto;padding:0 18px;background:#f2f6f5;color:#173a34}section{background:white;padding:18px;margin:16px 0;border-radius:12px}button,select{padding:9px;margin:5px}img{max-width:100%;min-height:80px}pre{white-space:pre-wrap}small{color:#52665f}</style>
-<h1>摄像头与测距模块测试</h1><p>本固件只采集传感器，持续发送停车指令。双摄像头接入后，选择一路采集并切换测试。</p>
+<h1>摄像头与测距模块测试</h1><p>本页用于摄像头和 ToF 联调。</p>
 <section><h2>测距 · 毫米</h2><div id="tof">等待 STM32…</div><small>无效或超时显示“—”，不会用零值代替。测试从距目标 30–100 mm 开始。</small></section>
-<section><h2>USB 摄像头</h2><div id="cam"></div><button onclick="stop()">停止采集</button><p id="message"></p><img id="preview" alt="选择摄像头并开始后显示画面"><p id="imageState"></p><small>摄像头编号按枚举顺序分配；首次分别遮挡镜头确认前方/作业端。显示的是实时轮询 JPEG，非双路 720p 视频。</small></section>
-<section><h2>USB 线路测试</h2><p>PCB 的 USB 母座对应 J_HUB1/2 转接口；每路四根线接 Hub 同一路下行口的 5V、D−、D+、GND。Hub 上行口接 ESP32-S3 原生 USB/OTG，COM 口只用于烧录和日志。</p><pre id="usbState">等待 USB 主机诊断…</pre><small>先看到设备枚举，再选择 MJPEG 格式，最后确认帧数持续增加且图像随场景变化。控制器电源标志不代表已测得 USB 5V。</small></section>
+<section><h2>相机画面</h2><div id="cam"></div><button onclick="stop()">停止采集</button><p id="message"></p><div id="view0" hidden><img id="preview0" alt="相机 1" hidden><p id="imageState0"></p></div><div id="view1" hidden><img id="preview1" alt="相机 2" hidden><p id="imageState1"></p></div></section>
+<section><h2>USB 与 SPI 诊断</h2><pre id="usbState">等待 USB 主机诊断…</pre><small>选择 MJPEG 或 YUY2 灰度预览后，确认帧数持续增加，遮挡镜头时画面随之变化。</small></section>
 <section><h2>状态与诊断</h2><pre id="raw"></pre></section>
 <script>
-let selected=-1,loading=false,lastSignature='',lastOK=0;
+let dual=false,lastSignature='';
+const previews=[0,1].map(()=>({enabled:false,loading:false,seq:null,epoch:0}));
+const startErrors=[null,null];
 const $=id=>document.getElementById(id);
-async function start(id){let f=$('f'+id).value;try{let r=await fetch('/api/camera/select?id='+id+'&format='+f,{method:'POST'});$('message').textContent=await r.text();if(r.ok){selected=id;lastOK=0;}}catch(e){$('message').textContent=e.message}}
-async function stop(){selected=-1;await fetch('/api/camera/stop',{method:'POST'});$('preview').removeAttribute('src');$('imageState').textContent='已停止'}
+function show(id,enabled){let p=previews[id];p.enabled=enabled;p.seq=null;p.epoch++;$('view'+id).hidden=!enabled;let img=$('preview'+id),old=img.getAttribute('src');img.hidden=true;img.removeAttribute('src');if(old?.startsWith('blob:'))URL.revokeObjectURL(old);$('imageState'+id).textContent=enabled?'等待第一帧…':'';}
+async function start(id){let f=$('f'+id).value;try{let r=await fetch('/api/camera/select?id='+id+'&format='+f,{method:'POST'});$('message').textContent=await r.text();if(r.ok){if(!dual)show(1-id,false);show(id,true);}}catch(e){$('message').textContent=e.message}}
+async function stop(){show(0,false);show(1,false);try{let r=await fetch('/api/camera/stop',{method:'POST'});$('message').textContent=r.ok?'已请求停止':await r.text();}catch(e){$('message').textContent=e.message;}}
 async function status(){try{let r=await fetch('/api/status',{cache:'no-store'});if(!r.ok)throw Error(r.status);let d=await r.json();
+for(const c of d.cameras)startErrors[c.id]=c.selected>=0&&!c.streaming&&c.error?.startsWith('ESP_ERR')?c.error:null;
 $('tof').textContent=d.tof.map(x=>'ToF '+x.id+': '+(x.valid?x.mm+' mm':'—')+' [状态 '+x.status+']').join('　');
-if(d.usb){let u=d.usb;$('usbState').textContent=`USB 根端口：${u.root_connected?'已检测连接':'未检测连接'} / 枚举设备数：${u.enumerated_devices}\n`+u.devices.map(x=>`地址 ${x.address} · VID ${x.vid.toString(16)} / PID ${x.pid.toString(16)} · ${x.video_interface?'摄像头接口':x.hub_interface?'Hub':'其他设备'}`).join('\n');}else{$('usbState').textContent='当前固件未提供 USB 总线诊断';}
-let signature=JSON.stringify(d.cameras.map(x=>[x.id,x.present,x.usb_address,x.formats]));
-if(signature!==lastSignature){lastSignature=signature;$('cam').replaceChildren();for(let c of d.cameras){let row=document.createElement('div');row.append('摄像头 '+c.id+'：'+(c.present?'已连接':'未连接'));if(c.present){let select=document.createElement('select');select.id='f'+c.id;let best=0,bestArea=0;for(let f of c.formats){let o=document.createElement('option');o.value=f.index;o.textContent=f.width+'×'+f.height+' MJPEG（默认 '+f.default_fps.toFixed(1)+' fps）';select.append(o);let a=f.width*f.height;if(f.width<=640&&f.height<=480&&a>bestArea){best=f.index;bestArea=a}}select.value=best;row.append(select);let b=document.createElement('button');b.textContent='采集此路';b.disabled=!c.formats.length;b.onclick=()=>start(c.id);row.append(b)}$('cam').append(row)}}
+dual=d.camera_mode==='usb_and_stm32_spi';
+if(d.usb){let u=d.usb,remote=d.cameras.find(c=>c.source==='stm32-spi');$('usbState').textContent=`ESP32 USB：D− GPIO${u.d_minus_gpio} / D+ GPIO${u.d_plus_gpio}\nUSB 根端口：${u.root_connected?'已检测连接':'未检测连接'} / 枚举设备数：${u.enumerated_devices}\n`+u.devices.map(x=>`地址 ${x.address} · VID ${x.vid.toString(16)} / PID ${x.pid.toString(16)} · ${x.video_interface?'摄像头接口':x.hub_interface?'Hub':'其他设备'}`).join('\n')+(remote?`\nSTM32 相机：SPI ${remote.spi_online?'在线':'离线'} / ${remote.error} / ${remote.frames} 帧\nESP32 收到 SPI 事务 ${remote.spi_transfers??'—'}，无效包 ${remote.bad_frames}`:'');}else{$('usbState').textContent='当前固件未提供 USB 总线诊断';}
+if(d.stm32_camera_diag){
+ const x=d.stm32_camera_diag, states=['等待连接','枚举中','已就绪','采集中','无兼容格式','USB 错误'];
+ $('usbState').textContent+=`\nSTM32 USB：${x.usb_host_init?(x.usb_attached?'检测到设备':'未检测到设备'):'Host 初始化失败'} / ${states[x.usb_state]??x.usb_state}\nSTM32 SPI：${x.spi_init?'已初始化':'初始化失败'} / READY ${x.ready_in?'高':'低'} / 发送 ${x.spi_attempts} / 有效回复 ${x.spi_acks}`;
+}
+let signature=JSON.stringify([dual,...d.cameras.map(x=>[x.id,x.present,x.usb_address,x.formats,x.error,x.advertised_modes])]);
+if(signature!==lastSignature){lastSignature=signature;$('cam').replaceChildren();for(let c of d.cameras){let row=document.createElement('div');row.append((dual?(c.id===0?'相机 1 · ESP32 USB':'相机 2 · STM32 USB / SPI'):'摄像头 '+c.id)+'：'+(c.present?'已连接':'未就绪'));if(c.present&&!c.formats.length)row.append('，已枚举 '+(c.advertised_modes??0)+' 种模式，可预览的格式为 0');if(c.present&&c.formats.length){let select=document.createElement('select');select.id='f'+c.id;let best=0,bestArea=0;for(let f of c.formats){let o=document.createElement('option');o.value=f.index;o.textContent=f.width+'×'+f.height+' '+(f.encoding==='YUY2'?'YUY2 灰度':(f.encoding||'MJPEG'))+'（'+(f.preview_fps??f.default_fps).toFixed(1)+' fps）';select.append(o);let a=f.width*f.height;if(f.encoding!=='YUY2'&&f.width<=640&&f.height<=480&&a>bestArea){best=f.index;bestArea=a}}select.value=best;row.append(select);let b=document.createElement('button');b.textContent='采集此路';b.disabled=!c.formats.length;b.onclick=()=>start(c.id);row.append(b)}$('cam').append(row)}}
 $('raw').textContent=JSON.stringify(d,null,2);
 }catch(e){$('raw').textContent='连接中断：'+e.message;$('tof').textContent='数据已过期';$('usbState').textContent='USB 状态已过期';}finally{setTimeout(status,500)}}
-async function image(){if(selected>=0&&!loading){loading=true;let controller=new AbortController(),timer=setTimeout(()=>controller.abort(),2500);try{let r=await fetch('http://'+location.hostname+':81/camera.jpg?id='+selected+'&t='+Date.now(),{signal:controller.signal,cache:'no-store'});if(!r.ok)throw Error(await r.text());let url=URL.createObjectURL(await r.blob()),old=$('preview').src;$('preview').src=url;if(old.startsWith('blob:'))URL.revokeObjectURL(old);lastOK=Date.now();$('imageState').textContent='新帧 · '+new Date(lastOK).toLocaleTimeString();}catch(e){$('imageState').textContent='暂无新帧：'+e.message;if(Date.now()-lastOK>2500)$('preview').removeAttribute('src');}finally{clearTimeout(timer);loading=false}}setTimeout(image,250)}
-status();image();
+async function image(id){
+ const p=previews[id],img=$('preview'+id),state=$('imageState'+id);
+ if(p.enabled&&!p.loading){
+  p.loading=true;
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),2500),epoch=p.epoch;
+  let candidate;
+  try{
+   const r=await fetch('http://'+location.hostname+':81/camera.jpg?id='+id,{signal:controller.signal,cache:'no-store'});
+   if(r.status===503){if(p.epoch===epoch)state.textContent=img.hidden?(startErrors[id]?'采集启动失败（'+startErrors[id]+'）':'等待第一帧…'):'等待新图像，当前显示上一帧';}
+   else {
+    if(!r.ok)throw Error('HTTP '+r.status);
+    const seq=r.headers.get('X-Frame-Seq'),age=Number(r.headers.get('X-Frame-Age-Ms'));
+    if(seq===null || p.seq!==seq || img.hidden){
+     candidate=URL.createObjectURL(await r.blob());
+     const decoded=new Image();decoded.src=candidate;await decoded.decode();
+     if(p.epoch!==epoch || !p.enabled)return;
+     const old=img.getAttribute('src');img.src=candidate;candidate=undefined;
+     img.hidden=false;p.seq=seq;
+     if(old?.startsWith('blob:'))URL.revokeObjectURL(old);
+    }else await r.body?.cancel();
+    if(p.epoch===epoch)state.textContent=age>1500?'等待新图像，当前显示上一帧':'最新画面'+(seq?' · 第 '+seq+' 帧':'');
+   }
+  }catch(e){if(p.epoch===epoch)state.textContent=img.hidden?'等待可解码图像…':'等待新图像，当前显示上一帧';}
+  finally{if(candidate)URL.revokeObjectURL(candidate);clearTimeout(timer);p.loading=false;setTimeout(()=>image(id),250);}
+ }else setTimeout(()=>image(id),250);
+}
+status();image(0);image(1);
 </script></html>

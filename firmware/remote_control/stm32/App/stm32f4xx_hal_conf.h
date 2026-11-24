@@ -10,6 +10,10 @@
 #define HAL_TIM_MODULE_ENABLED
 #define HAL_UART_MODULE_ENABLED
 #define HAL_IWDG_MODULE_ENABLED
+#ifdef TREE_F407_UVC
+#define HAL_HCD_MODULE_ENABLED
+#define HAL_SPI_MODULE_ENABLED
+#endif
 #define HSE_VALUE 8000000u
 #define HSE_STARTUP_TIMEOUT 5000u
 #define HSI_VALUE 16000000u
@@ -32,5 +36,9 @@
 #include "stm32f4xx_hal_tim.h"
 #include "stm32f4xx_hal_uart.h"
 #include "stm32f4xx_hal_iwdg.h"
+#ifdef TREE_F407_UVC
+#include "stm32f4xx_hal_hcd.h"
+#include "stm32f4xx_hal_spi.h"
+#endif
 #define assert_param(expr) ((void)0u)
 #endif

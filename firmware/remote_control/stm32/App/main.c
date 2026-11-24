@@ -5,6 +5,10 @@
 #include "robot_pinmap.h"
 #include "rc_control.h"
 #include "tof.h"
+#include <stdbool.h>
+#ifdef TREE_F407_UVC
+#include "camera_f407.h"
+#endif
 
 static TIM_HandleTypeDef pwm;
 static UART_HandleTypeDef serial;
@@ -12,6 +16,7 @@ static IWDG_HandleTypeDef watchdog;
 static rc_control_t control;
 static rc_parser_t parser;
 static volatile uint8_t rx[128],head,tail,rx_fault;
+static volatile uint8_t tx[128],tx_head,tx_tail;
 static const uint32_t channels[]={TIM_CHANNEL_1,TIM_CHANNEL_2,TIM_CHANNEL_3,TIM_CHANNEL_4};
 static GPIO_TypeDef *const dir1[]={ROBOT_MOTOR1_IN1_PORT,ROBOT_MOTOR2_IN1_PORT,ROBOT_MOTOR3_IN1_PORT,ROBOT_MOTOR4_IN1_PORT};
 static GPIO_TypeDef *const dir2[]={ROBOT_MOTOR1_IN2_PORT,ROBOT_MOTOR2_IN2_PORT,ROBOT_MOTOR3_IN2_PORT,ROBOT_MOTOR4_IN2_PORT};
@@ -148,6 +153,25 @@ void USART2_IRQHandler(void) {
             else {rx[head]=byte;head=next;}
         }
     }
+    if((status&USART_SR_TXE) && (USART2->CR1&USART_CR1_TXEIE)) {
+        if(tx_tail==tx_head) __HAL_UART_DISABLE_IT(&serial,UART_IT_TXE);
+        else {
+            USART2->DR=tx[tx_tail];
+            tx_tail=(uint8_t)((tx_tail+1u)&127u);
+        }
+    }
+}
+static bool uart_send_frame(const uint8_t *frame) {
+    uint8_t next=tx_head;
+    unsigned i;
+    if(((tx_tail+127u-next)&127u)<RC_FRAME_SIZE) return false;
+    for(i=0;i<RC_FRAME_SIZE;i++) {
+        tx[next]=frame[i];
+        next=(uint8_t)((next+1u)&127u);
+    }
+    tx_head=next;
+    __HAL_UART_ENABLE_IT(&serial,UART_IT_TXE);
+    return true;
 }
 void SysTick_Handler(void) {HAL_IncTick();}
 void HardFault_Handler(void) {fatal();}
@@ -155,14 +179,9 @@ void MemManage_Handler(void) {fatal();}
 void BusFault_Handler(void) {fatal();}
 void UsageFault_Handler(void) {fatal();}
 
-int main(void) {
-    uint32_t last_status=0;uint8_t raw[RC_FRAME_SIZE];rc_frame_t frame;
-    HAL_Init();clock_init();gpio_init();pwm_init();uart_init();
-    rc_control_init(&control,HAL_GetTick());
-    tof_init();
-    watchdog.Instance=IWDG;watchdog.Init.Prescaler=IWDG_PRESCALER_64;
-    watchdog.Init.Reload=500;check(HAL_IWDG_Init(&watchdog)); /* ~1s, LSI tolerance applies */
-    while(1) {
+void robot_control_poll(void) {
+        static uint32_t last_status;
+        uint8_t raw[RC_FRAME_SIZE];rc_frame_t frame;
         uint32_t now=HAL_GetTick();unsigned budget=64;
         rc_control_estop(&control,HAL_GPIO_ReadPin(ROBOT_STOP_PORT,ROBOT_STOP_PIN)==GPIO_PIN_RESET,now);
         if(rx_fault) {
@@ -184,16 +203,23 @@ int main(void) {
                 (control.armed?RC_STATUS_ARMED:RC_STATUS_DISARMED);
             frame.seq=control.last_seq;frame.left=control.output[0];frame.right=control.output[1];
             rc_encode(raw,&frame);
-            if(HAL_UART_Transmit(&serial,raw,RC_FRAME_SIZE,5)!=HAL_OK) {
+            if(!uart_send_frame(raw)) {
                 rc_control_stop(&control,now);outputs();
             }
 #if ROBOT_HAS_UPPER_ACTUATORS
             frame.type=RC_STATUS_UPPER;frame.seq=control.upper_seq;
             frame.left=control.upper_output;frame.right=RC_UPPER_STATUS_TAG;
             rc_encode(raw,&frame);
-            if(HAL_UART_Transmit(&serial,raw,RC_FRAME_SIZE,5)!=HAL_OK) {
+            if(!uart_send_frame(raw)) {
                 rc_control_stop(&control,now);outputs();
             }
+#endif
+#ifdef TREE_F407_UVC
+            uint16_t attempts, acks;
+            frame.type=RC_STATUS_CAMERA;
+            frame.right=(int16_t)camera_f407_diag(&attempts,&acks);
+            frame.seq=attempts;frame.left=(int16_t)acks;
+            rc_encode(raw,&frame);(void)uart_send_frame(raw);
 #endif
         }
         HAL_GPIO_WritePin(GPIOF,GPIO_PIN_9,control.armed?GPIO_PIN_RESET:GPIO_PIN_SET);
@@ -202,9 +228,25 @@ int main(void) {
         { unsigned index;int16_t mm,status;uint16_t seq;
           if(tof_report(now,&index,&mm,&status,&seq)) {
             frame.type=(uint8_t)(0x90u+index);frame.seq=seq;frame.left=mm;frame.right=status;
-            rc_encode(raw,&frame);(void)HAL_UART_Transmit(&serial,raw,RC_FRAME_SIZE,5);
+            rc_encode(raw,&frame);(void)uart_send_frame(raw);
           }
         }
         HAL_IWDG_Refresh(&watchdog);
+}
+
+int main(void) {
+    HAL_Init();clock_init();gpio_init();pwm_init();uart_init();
+    rc_control_init(&control,HAL_GetTick());
+    tof_init();
+    watchdog.Instance=IWDG;watchdog.Init.Prescaler=IWDG_PRESCALER_64;
+    watchdog.Init.Reload=500;check(HAL_IWDG_Init(&watchdog)); /* ~1s, LSI tolerance applies */
+#ifdef TREE_F407_UVC
+    camera_f407_init();
+#endif
+    while(1) {
+        robot_control_poll();
+#ifdef TREE_F407_UVC
+        camera_f407_poll();
+#endif
     }
 }

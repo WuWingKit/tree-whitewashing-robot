@@ -1,6 +1,6 @@
 # 固件目录
 
-> **2026-11-20 更新：** 现板 `pcb_v2` 已加入高电平有效的搅拌器/水泵网页开关、STM32 输出报告和 USB 枚举诊断，保留三路 TOF、底盘遥控及 OTA。见 [联合测试与接线说明](remote_control/BENCH_TEST_20261120.md)。请刷入两端配套版本 `0.4.0-upper-usb-tof`；下方早期版本记录作为历史保留。
+> **V4.2 开发交接。** 本目录最新 ESP32 源码为 `0.5.5-dual-usb-spi`，目标板型 `pcb_v2`。当前接线、运行状态及水泵复测见[开发交接说明](../docs/15-v42-team-handoff.md)。下方早期联调记录按历史保留。
 
 
 [remote_control](remote_control/README.md)提供2026-11-08底盘开环无线遥控测试：STM32F407 HAL本地驱动、ESP32-S3 Arduino无线转发和电脑浏览器操作页。接线、构建和验证范围见该目录。

@@ -3,6 +3,11 @@
  * IDF tasks; no image is sent through the motor UART. */
 struct RangeSample {int16_t mm=-1,status=259;uint16_t seq=0;uint32_t at=0;bool seen=false;};
 static RangeSample ranges[3];
+#ifdef TREE_CAMERA_SPI
+static uint16_t cameraAttempts=0,cameraAcks=0,cameraBits=0;
+static uint32_t cameraDiagAt=0;
+static bool cameraDiagSeen=false;
+#endif
 #ifdef TREE_SENSOR_USB
 #include "cameras.h"
 #include <esp_http_server.h>
@@ -11,6 +16,12 @@ extern const unsigned char sensor_page_end[] asm("_binary_index_html_end");
 static bool sensorsStarted=false;
 #endif
 static void sensorReceive(const rc_frame_t &f) {
+#ifdef TREE_CAMERA_SPI
+ if(f.type==RC_STATUS_CAMERA) {
+  cameraAttempts=f.seq;cameraAcks=(uint16_t)f.left;cameraBits=(uint16_t)f.right;
+  cameraDiagAt=millis();cameraDiagSeen=true;return;
+ }
+#endif
  if(f.type<0x90 || f.type>0x92) return;
  RangeSample &s=ranges[f.type-0x90];
  if(!s.seen || s.seq!=f.seq) s.at=millis();
@@ -47,7 +58,11 @@ static void sensorRoutes() {
 #endif
  server.on("/api/sensors/status",HTTP_GET,[](){
   String json=String("{\"firmware\":\"")+FW_VERSION+"\",\"stm32_online\":"+(mcuLive()?"true":"false")+
+#ifdef TREE_CAMERA_SPI
+   ",\"motor_control_enabled\":true,\"camera_mode\":\"usb_and_stm32_spi\",\"tof\":"+sensorRangeJSON()+",\"cameras\":";
+#else
    ",\"motor_control_enabled\":true,\"camera_mode\":\"one_stream_at_a_time\",\"tof\":"+sensorRangeJSON()+",\"cameras\":";
+#endif
 #ifdef TREE_SENSOR_USB
   cJSON *c=cameras_json();char *text=cJSON_PrintUnformatted(c);
   json+=text?text:"[]";free(text);cJSON_Delete(c);
@@ -60,6 +75,16 @@ static void sensorRoutes() {
   json+=usbText?usbText:"{}";free(usbText);cJSON_Delete(u);
 #else
   json+="null";
+#endif
+#ifdef TREE_CAMERA_SPI
+  if(cameraDiagSeen && millis()-cameraDiagAt<1000u) {
+   json+=",\"stm32_camera_diag\":{\"spi_init\":";json+=(cameraBits&1)?"true":"false";
+   json+=",\"ready_in\":";json+=(cameraBits&2)?"true":"false";
+   json+=",\"usb_host_init\":";json+=(cameraBits&4)?"true":"false";
+   json+=",\"usb_attached\":";json+=(cameraBits&8)?"true":"false";
+   json+=",\"usb_state\":"+String((cameraBits>>4)&15)+",\"spi_attempts\":"+String(cameraAttempts)+
+    ",\"spi_acks\":"+String(cameraAcks)+"}";
+  }
 #endif
   reply(200,json+"}");
  });

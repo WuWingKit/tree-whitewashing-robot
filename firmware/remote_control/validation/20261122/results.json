@@ -1,0 +1,62 @@
+{
+  "version": "0.4.1-usb-pinmap",
+  "date": "2026-11-22",
+  "device_flashed": false,
+  "hardware_test": "not performed",
+  "usb_d_minus_gpio": 19,
+  "usb_d_plus_gpio": 20,
+  "pcb_camera_ports": 2,
+  "requires_external_hub_for_two_cameras": true,
+  "stm32_program_changed": false,
+  "build": "PASS ESP-IDF5.4.2, ESP32-S3, pcb_v2; internal PHY and external hub configuration checked at compile time",
+  "web_tests": "PASS actual control page regression and sensor/OTA JavaScript syntax",
+  "compiled_source_check": "PASS camera configuration and source match actual build inputs",
+  "changed_sources": [
+    "firmware/remote_control/BENCH_TEST_20261120.md",
+    "firmware/remote_control/USB_PINMAP.md",
+    "firmware/remote_control/tools/build_integrated.py",
+    "firmware/remote_control/esp32/idf/CMakeLists.txt",
+    "firmware/remote_control/esp32/RemoteControl/ota_support.h",
+    "firmware/sensor_test/esp32/main/cameras.c",
+    "firmware/sensor_test/esp32/main/index.html",
+    "firmware/sensor_test/esp32/main/usb_camera_config.h",
+    "README.md"
+  ],
+  "artifacts": [
+    {
+      "path": "firmware/remote_control/esp32/build/integrated/pcb_v2/app.bin",
+      "sha256": "eaac71d5e76ff89bd286f7e22554e44af5a5d872e236bdd497bee1c0b9204e43",
+      "bytes": 1017056
+    },
+    {
+      "path": "firmware/remote_control/esp32/build/integrated/pcb_v2/bootloader.bin",
+      "sha256": "9713ebf9c520d4feb0901a20d70b808bfc9e61fcbcef57c5d04f8706315d4b8b",
+      "bytes": 21024
+    },
+    {
+      "path": "firmware/remote_control/esp32/build/integrated/pcb_v2/partitions.bin",
+      "sha256": "148b959cbff1c38aa8e1d5c0ba9d612c54997b945e56a63f41223eef650653a1",
+      "bytes": 3072
+    },
+    {
+      "path": "firmware/remote_control/esp32/build/integrated/pcb_v2/reset_otadata.bin",
+      "sha256": "7d2c7ac4888bfd75cd5f56e8d61f69595121183afc81556c876732fd3782c62f",
+      "bytes": 8192
+    },
+    {
+      "path": "firmware/remote_control/esp32/build/integrated/pcb_v2/flasher_args.json",
+      "sha256": "5dd11ba6a9e4c6e0b98ec6a53bb1758d33ea95b20d6fce81f7ab452a2dff7bc0",
+      "bytes": 946
+    },
+    {
+      "path": "firmware/remote_control/esp32/build/integrated/pcb_v2/ota.json",
+      "sha256": "e181bf3246891885435138eb1a5d22567a32e70ea98453d4d9aeeee50f89f0d1",
+      "bytes": 195
+    },
+    {
+      "path": "firmware/remote_control/esp32/build/integrated/pcb_v2/wiring_profile.json",
+      "sha256": "027cfdf123d44422f0f34eb562b37215121a5f870f769ce9116f21a87cdf44b5",
+      "bytes": 1638
+    }
+  ]
+}

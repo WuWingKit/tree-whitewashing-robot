@@ -15,7 +15,7 @@ body{font-family:system-ui,sans-serif;max-width:720px;margin:30px auto;padding:1
 </div>
 <section style="background:white;padding:16px;border-radius:9px">
 <h2>搅拌电机与水泵</h2>
-<p>先点击“启用遥控”，再选择需要通电的设备。开关为持续请求，停止、断联或升级会关闭。</p>
+<p>先点击“启用遥控”。“关闭水泵”只关水泵，可直接再次开启。点击“停止并锁定”、断联或切换窗口后，需要重新启用遥控。</p>
 <button id="mixer" disabled>开启搅拌电机</button> <button id="pump" disabled>开启水泵</button>
 <pre id="upperStatus">等待上装控制状态…</pre>
 <small>高电平通电、低电平断电。状态表示 STM32 输出指令，不是实际电流或转速反馈。</small>
@@ -26,6 +26,7 @@ body{font-family:system-ui,sans-serif;max-width:720px;margin:30px auto;padding:1
 'use strict';
 let token=0,seq=0,held='',busy=false,arming=false,generation=0,ready=false;
 let wantMixer=false,wantPump=false,upperAvailable=false;
+let lockReason='';
 const byId=id=>document.getElementById(id);
 const buttons=[...document.querySelectorAll('[data-key]')];
 function clearHeld(){held='';buttons.forEach(b=>b.classList.remove('held'));}
@@ -34,7 +35,11 @@ function upperButtons(){
  byId('pump').textContent=wantPump?'关闭水泵':'开启水泵';
  byId('mixer').disabled=byId('pump').disabled=!ready||!upperAvailable;
 }
-function lock(send=true){generation++;token=0;arming=false;ready=false;wantMixer=wantPump=false;clearHeld();upperButtons();if(send)navigator.sendBeacon('/api/stop','');}
+function lock(reason='遥控已锁定，请重新启用。'){
+ generation++;token=0;arming=false;ready=false;wantMixer=wantPump=false;lockReason=reason;
+ clearHeld();upperButtons();navigator.sendBeacon('/api/stop','');
+ byId('status').textContent=lockReason;
+}
 async function api(path,params){
  const abort=new AbortController(),timer=setTimeout(()=>abort.abort(),200);
  try{const res=await fetch(path,{method:'POST',body:new URLSearchParams(params),signal:abort.signal});
@@ -48,13 +53,13 @@ async function tick(){
  if(!token||busy)return;
  busy=true;const session=token,[left,right]=drivePair();
  try{await api('/api/drive',{token:session,seq:++seq,left,right,mixer:wantMixer?1:0,pump:wantPump?1:0});}
- catch(e){if(token===session){lock();byId('status').textContent='遥控已锁定：'+e.message;}}
+ catch(e){if(token===session)lock('控制心跳失败，请重新启用遥控。'+e.message);}
  finally{busy=false;}
 }
 byId('arm').onclick=async()=>{
- if(token||arming)return;clearHeld();arming=true;const attempt=++generation;
+ if(token||arming)return;clearHeld();arming=true;lockReason='';const attempt=++generation;
  try{const data=await api('/api/arm',{});if(attempt!==generation){navigator.sendBeacon('/api/stop','');return;}token=data.token;seq=0;await tick();}
- catch(e){if(attempt===generation){lock();byId('status').textContent='无法启用：'+e.message;}}
+ catch(e){if(attempt===generation)lock('无法启用遥控。'+e.message);}
  finally{if(attempt===generation)arming=false;}
 };
 byId('stop').onclick=()=>lock();
@@ -82,15 +87,16 @@ window.addEventListener('pagehide',()=>lock());
 setInterval(tick,80);
 let polling=false;
 async function poll(){
- if(polling)return;polling=true;const snapshot=generation;
+ if(polling)return;polling=true;const snapshot=generation,session=token;
  const abort=new AbortController(),timer=setTimeout(()=>abort.abort(),250);
  try{const r=await fetch('/api/status',{cache:'no-store',signal:abort.signal});if(!r.ok)throw Error('status');const s=await r.json();
- if(snapshot!==generation)return;
- if(token&&(!s.online||s.estop||!s.owner))lock();
- if(s.maintenance&&token)lock();
+ // A response sampled before receiving the ARM token belongs to the old session.
+ if(snapshot!==generation||session!==token)return;
+ if(token&&(!s.online||s.estop||!s.owner))lock(s.estop?'停车按钮已按下，请释放后重新启用遥控。':'遥控会话已中断，请重新启用。');
+ if(s.maintenance&&token)lock('正在维护，结束后重新启用遥控。');
  ready=Boolean(token&&s.armed&&s.online&&!s.estop&&!s.maintenance);
  upperAvailable=Boolean(s.online&&s.upper&&s.upper.available);
- if(!upperAvailable&&(wantMixer||wantPump))lock();
+ if(!upperAvailable&&(wantMixer||wantPump))lock('上装状态回报中断，请检查 STM32 后重新启用。');
  upperButtons();
  const u=s.upper,level=v=>v===null||v===undefined?'无新回报':v?'高电平 / 通电指令':'低电平 / 断电指令';
  byId('upperStatus').textContent=upperAvailable?
@@ -99,8 +105,11 @@ async function poll(){
  byId('version').textContent=s.version||'早期测试版';
  byId('arm').disabled=Boolean(s.maintenance);
  buttons.forEach(b=>b.disabled=!ready);
- byId('status').textContent=`STM32：${s.online?'在线':'离线'} / ${s.estop?'停车按钮按下':s.armed?'已启用':'已锁定'}\n左侧输出：${s.left/10}%　右侧输出：${s.right/10}%\n${token?'本页持有遥控会话':'点击启用后按住操作'}（输出非实测速度）`;
- }catch(e){lock();byId('status').textContent='网络或状态连接断开，已请求停车';}
+ byId('status').textContent=`STM32：${s.online?'在线':'离线'} / ${s.estop?'停车按钮按下':s.armed?'已启用':'已锁定'}\n左侧输出：${s.left/10}%　右侧输出：${s.right/10}%\n${token?'本页持有遥控会话':lockReason||'点击启用后按住操作'}`;
+ }catch(e){
+  if(snapshot===generation&&session===token)byId('status').textContent=token?
+   '状态刷新超时。控制心跳仍单独检查；心跳超时会自动停车。':'状态刷新超时，正在重试…';
+ }
  finally{clearTimeout(timer);polling=false;}
 }
 buttons.forEach(b=>b.disabled=true);setInterval(poll,300);poll();

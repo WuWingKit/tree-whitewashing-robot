@@ -28,6 +28,11 @@ def render(data):
         pins += [t[k]for t in p['tof']for k in ['scl','sda']]
         if 'actuators' in p:
             a=p['actuators'];pins += [a[k] for k in ['step_pulse','step_direction','step_enable','servo','limit_low','limit_high']] + a['irf']
+        if 'camera' in p:
+            cm=p['camera']
+            pins += list(cm['stm_usb'].values()) + list(cm['spi']['stm'].values())
+            esp=[p['uart']['esp_tx'],p['uart']['esp_rx'],*cm['esp_usb'].values(),*cm['spi']['esp'].values()]
+            assert len(esp)==len(set(esp)),(name,'ESP32 GPIO conflict')
         assert len(pins)==len(set(pins)),(name,'GPIO conflict')
         assert [m['pwm']for m in p['motor']]==['PE9','PE11','PE13','PE14']
         assert p['uart']['stm_tx']=='PA2'and p['uart']['stm_rx']=='PA3'
@@ -47,6 +52,11 @@ def render(data):
         if 'actuators' in p:
             for key in ['step_pulse','step_direction','step_enable','servo','limit_low','limit_high']:gpio('ROBOT_'+key.upper(),p['actuators'][key])
             for i,pin in enumerate(p['actuators']['irf'],1):gpio('ROBOT_IRF'+str(i),pin)
+        if 'camera' in p:
+            for key,pin in cm['stm_usb'].items():gpio('ROBOT_STM_CAMERA_USB_'+key.upper(),pin)
+            for key,pin in cm['spi']['stm'].items():gpio('ROBOT_STM_CAMERA_SPI_'+key.upper(),pin)
+            for key,pin in cm['esp_usb'].items():out.append('#define ROBOT_ESP_CAMERA_USB_'+key.upper()+' '+pin.removeprefix('GPIO'))
+            for key,pin in cm['spi']['esp'].items():out.append('#define ROBOT_ESP_CAMERA_SPI_'+key.upper()+' '+pin.removeprefix('GPIO'))
         out+=['#define ROBOT_ESP_UART_TX '+p['uart']['esp_tx'].removeprefix('GPIO'),
               '#define ROBOT_ESP_UART_RX '+p['uart']['esp_rx'].removeprefix('GPIO')]
     out+=['#else','#error Unsupported ROBOT_WIRING_PROFILE','#endif','#endif','']
